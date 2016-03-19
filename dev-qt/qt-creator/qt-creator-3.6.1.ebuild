@@ -2,9 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 PLOCALES="cs de fr ja pl ru sl uk zh_CN zh_TW"
-inherit eutils l10n multilib qmake-utils virtualx
+
+inherit eutils l10n qmake-utils virtualx
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="http://doc.qt.io/qtcreator/"
@@ -53,7 +54,7 @@ RDEPEND="
 	>=dev-qt/qtxml-${QT_PV}
 	>=sys-devel/gdb-7.5[client,python]
 	clang? ( >=sys-devel/clang-3.6:= )
-	qbs? ( >=dev-util/qbs-1.4.2 )
+	qbs? ( >=dev-util/qbs-1.4.4 )
 	systemd? ( sys-apps/systemd:= )
 	webkit? ( >=dev-qt/qtwebkit-${QT_PV} )
 "
@@ -80,13 +81,9 @@ PDEPEND="
 	valgrind? ( dev-util/valgrind )
 "
 
-#PATCHES=(
-#	"${FILESDIR}/3.5.1-tst_fileutils-parentDir.patch"
-#)
-
 src_unpack() {
 	if [[ $(gcc-major-version) -lt 4 ]] || [[ $(gcc-major-version) -eq 4 && $(gcc-minor-version) -lt 7 ]]; then
-		eerror "GCC version 4.7 or later is required to build Qt Creator"
+		eerror "GCC version 4.7 or later is required to build Qt Creator ${PV}"
 		die "GCC >= 4.7 required"
 	fi
 
@@ -98,9 +95,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	# apply patches
-	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
-	epatch_user
+	default
 
 	# disable unwanted plugins
 	for plugin in "${QTC_PLUGINS[@]#[+-]}"; do
@@ -143,8 +138,7 @@ src_configure() {
 }
 
 src_test() {
-	cd tests/auto || die
-	VIRTUALX_COMMAND=default virtualmake
+	cd tests/auto && virtx default
 }
 
 src_install() {
