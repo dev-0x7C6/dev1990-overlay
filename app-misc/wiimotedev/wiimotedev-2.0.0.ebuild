@@ -8,7 +8,7 @@ inherit cmake-utils versionator
 
 DESCRIPTION="Wiimotedev Project consists of wiimotedev daemon and Qt frontend for use with Wii remotes"
 HOMEPAGE="http://code.google.com/p/wiimotedev/"
-SRC_URI="https://github.com/dev-0x7C6/wiimotedev/archive/v${PV}.tar.gz"
+SRC_URI="https://github.com/dev-0x7C6/wiimotedev/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"

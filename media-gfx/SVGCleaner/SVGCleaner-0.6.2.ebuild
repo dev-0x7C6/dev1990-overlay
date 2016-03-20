@@ -6,7 +6,7 @@ EAPI=5
 
 DESCRIPTION="SVG Cleaner could help you to clean up your SVG files from unnecessary data."
 HOMEPAGE="https://github.com/RazrFalcon/SVGCleaner"
-SRC_URI="https://github.com/RazrFalcon/SVGCleaner/archive/v${PV}.tar.gz"
+SRC_URI="https://github.com/RazrFalcon/SVGCleaner/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
