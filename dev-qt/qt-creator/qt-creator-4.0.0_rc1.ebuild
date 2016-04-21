@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -9,7 +9,7 @@ inherit eutils l10n qmake-utils virtualx
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="http://doc.qt.io/qtcreator/"
-LICENSE="|| ( LGPL-2.1 LGPL-3 )"
+LICENSE="GPL-3"
 SLOT="0"
 
 if [[ ${PV} == *9999 ]]; then
@@ -27,13 +27,17 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-QTC_PLUGINS=('android:android|qmakeandroidsupport' autotools:autotoolsprojectmanager baremetal
-	bazaar clang:clangcodemodel clearcase cmake:cmakeprojectmanager cvs git ios mercurial
-	perforce python:pythoneditor qbs:qbsprojectmanager qnx subversion valgrind winrt)
+# TODO: unbundle sqlite
+#	allow disabling modeleditor plugin
+#	we can avoid building some libs (clangbackendipc, glsl, modelinglib, sqlite) when the plugins that use them are disabled
+
+QTC_PLUGINS=('android:android|qmakeandroidsupport' autotools:autotoolsprojectmanager baremetal bazaar
+	clangcodemodel clangstaticanalyzer clearcase cmake:cmakeprojectmanager cvs git glsl:glsleditor
+	ios mercurial perforce python:pythoneditor qbs:qbsprojectmanager qnx subversion valgrind winrt)
 IUSE="doc systemd test webkit ${QTC_PLUGINS[@]%:*}"
 
 # minimum Qt version required
-QT_PV="5.4.0:5"
+QT_PV="5.5.0:5"
 
 RDEPEND="
 	=dev-libs/botan-1.10*[-bindist,threads]
@@ -53,8 +57,7 @@ RDEPEND="
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
 	>=sys-devel/gdb-7.5[client,python]
-	clang? ( >=sys-devel/clang-3.6:= )
-	qbs? ( >=dev-util/qbs-1.4.4 )
+	clangcodemodel? ( =sys-devel/clang-3.6.2*:= )
 	systemd? ( sys-apps/systemd:= )
 	webkit? ( >=dev-qt/qtwebkit-${QT_PV} )
 "
@@ -73,6 +76,7 @@ unset x
 PDEPEND="
 	autotools? ( sys-devel/autoconf )
 	bazaar? ( dev-vcs/bzr )
+	clangstaticanalyzer? ( sys-devel/clang )
 	cmake? ( dev-util/cmake )
 	cvs? ( dev-vcs/cvs )
 	git? ( dev-vcs/git )
@@ -112,6 +116,13 @@ src_prepare() {
 			src/plugins/help/help.pro || die "failed to disable webkit"
 	fi
 
+	# automagic dep on qtwebengine
+	# TODO: re-enable behind USE flag when qtwebengine enters the tree
+	#if ! use webengine; then
+		sed -i -e 's/isEmpty(QT\.webenginewidgets\.name)/true/' \
+			src/plugins/help/help.pro || die "failed to disable webengine"
+	#fi
+
 	# disable broken or unreliable tests
 	sed -i -e '/SUBDIRS/ s/\<dumpers\>//' tests/auto/debugger/debugger.pro || die
 	sed -i -e '/CONFIG -=/ s/$/ testcase/' tests/auto/extensionsystem/pluginmanager/correctplugins1/plugin?/plugin?.pro || die
@@ -122,19 +133,20 @@ src_prepare() {
 		share/qtcreator/translations/translations.pro || die
 
 	# remove bundled qbs
-	rm -rf src/shared/qbs || die
+	#rm -rf src/shared/qbs || die # TODO
 }
 
 src_configure() {
 	eqmake5 IDE_LIBRARY_BASENAME="$(get_libdir)" \
 		IDE_PACKAGE_MODE=1 \
-		$(use clang && echo LLVM_INSTALL_DIR="${EPREFIX}/usr") \
-		$(use qbs && echo QBS_INSTALL_DIR="${EPREFIX}/usr") \
-		CONFIG+=qbs_disable_rpath \
-		CONFIG+=qbs_enable_project_file_updates \
+		$(use clangcodemodel && echo LLVM_INSTALL_DIR="${EPREFIX}/usr") \
 		$(use systemd && echo CONFIG+=journald) \
 		$(use test && echo BUILD_TESTS=1) \
 		USE_SYSTEM_BOTAN=1
+		# TODO: re-enable when upstream releases a compatible version of qbs
+		#$(use qbs && echo QBS_INSTALL_DIR="${EPREFIX}/usr") \
+		#CONFIG+=qbs_disable_rpath \
+		#CONFIG+=qbs_enable_project_file_updates \
 }
 
 src_test() {
