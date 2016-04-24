@@ -19,7 +19,7 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}/qt-everywhere-opensource-src-${PV}"
 
 src_configure() {
-	./configure -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license -c++std c++14
+	./configure -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license -skip qtwebkit
 }
 
 src_install() {
