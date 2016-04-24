@@ -4,24 +4,18 @@
 
 EAPI=5
 
-DESCRIPTION="Qt 5 developer bundle for GCC"
-HOMEPAGE=""
-SRC_URI="http://download.qt.io/official_releases/qt/5.6/${PV}/single/qt-everywhere-opensource-src-${PV}.tar.xz"
+inherit qtsdk
+
+DESCRIPTION="Qt 5 sdk for clang compiler"
+HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
+SRC_URI="http://download.qt.io/official_releases/qt/${PV%.*}/${PV}/single/qt-everywhere-opensource-src-${PV}.tar.xz"
 
 LICENSE="LGPL-3"
 SLOT="${PV}"
 KEYWORDS="x86 amd64"
-IUSE=""
 
-DEPEND=""
+DEPEND=" \
+	sys-devel/clang \
+"
+
 RDEPEND="${DEPEND}"
-
-S="${WORKDIR}/qt-everywhere-opensource-src-${PV}"
-
-src_configure() {
-	./configure -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license -skip qtwebkit
-}
-
-src_install() {
-	INSTALL_ROOT="${D}/" emake install
-}
