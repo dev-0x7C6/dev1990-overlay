@@ -21,3 +21,7 @@ S="${WORKDIR}/qt-everywhere-opensource-src-$PV"
 src_configure() {
 	./configure -prefix /opt/qt/$PV-${PN#qt-bundle-*} -platform ${PN#qt-bundle-*} -opensource -confirm-license -c++std c++14
 }
+
+src_install() {
+	INSTALL_ROOT="${D}/" emake install
+}
