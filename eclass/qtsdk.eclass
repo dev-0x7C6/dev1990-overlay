@@ -7,10 +7,14 @@
 # Purpose: Managment of Qt sdk 
 #
 
+inherit versionator
+
 EXPORT_FUNCTIONS src_configure src_install
 
 IUSE="$IUSE \
-	3d \
+	$(version_is_at_least 5.5 && echo 3d) \
+	$(version_is_at_least 5.6 && echo serialbus) \
+	$(version_is_at_least 5.6 && echo webview) \
 	+declarative \
 	+doc \
 	+graphicaleffects \
@@ -23,20 +27,16 @@ IUSE="$IUSE \
 	multimedia \
 	script \
 	sensors \
-	serialbus \
 	svg \
 	wayland \
 	webchannel \
 	webengine \
-	webview \
 "
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${PV}"
 
 qtsdk_src_configure() {
 	local conf=()
-	use 3d || conf+=('-skip qt3d')
-	use 3d || conf+=('-skip qtcanvas3d')
 	use declarative || conf+=('-skip qtconnectivity')
 	use doc || conf+=('-skip qtdoc')
 	use enginio || conf+=('-skip qtenginio')
@@ -47,13 +47,15 @@ qtsdk_src_configure() {
 	use quick2 || conf+=('-skip qtquickcontrols2')
 	use script || conf+=('-skip qtscript')
 	use sensors || conf+=('-skip qtsensors')
-	use serialbus || conf+=('-skip qtserialbus')
 	use serialport || conf+=('-skip qtserialport')
 	use svg || conf+=('-skip qtsvg')
 	use wayland || conf+=('-skip qtwayland')
 	use webchannel || conf+=('-skip qtwebchannel')
 	use webengine || conf+=('-skip qtwebengine')
-	use webview || conf+=('-skip qtwebview')
+	version_is_at_least 5.5 && { use 3d || conf+=('-skip qt3d'); }
+	version_is_at_least 5.5 && { use 3d || conf+=('-skip qtcanvas3d'); }
+	version_is_at_least 5.6 && { use serialbus || conf+=('-skip qtserialbus'); }
+	version_is_at_least 5.6 && { use webview || conf+=('-skip qtwebview'); }
 	./configure -nomake tests -nomake examples -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license ${conf[@]}
 
 }
