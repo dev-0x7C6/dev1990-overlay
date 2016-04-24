@@ -10,7 +10,6 @@
 EXPORT_FUNCTIONS src_configure src_install
 
 IUSE="$IUSE \
-	build-examples \
 	+declarative \
 	+doc \
 	+graphicaleffects \
@@ -52,8 +51,7 @@ qtsdk_src_configure() {
 	use webchannel || conf+=('-skip qtwebchannel')
 	use webengine || conf+=('-skip qtwebengine')
 	use webview || conf+=('-skip qtwebview')
-	use build-examples || conf+=('-no-compile-examples')
-	./configure -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license -optimized-tools ${conf[@]}
+	./configure -nomake tests -nomake examples -prefix /opt/qtsdk/${P} -platform ${PN#*-} -opensource -confirm-license ${conf[@]}
 
 }
 
