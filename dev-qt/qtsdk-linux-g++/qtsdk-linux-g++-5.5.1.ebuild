@@ -1,0 +1,1 @@
+qtsdk-linux-g++-5.6.0.ebuild
