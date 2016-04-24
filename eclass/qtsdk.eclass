@@ -10,6 +10,7 @@
 EXPORT_FUNCTIONS src_configure src_install
 
 IUSE="$IUSE \
+	3d \
 	+declarative \
 	+doc \
 	+graphicaleffects \
@@ -34,6 +35,8 @@ S="${WORKDIR}/qt-everywhere-opensource-src-${PV}"
 
 qtsdk_src_configure() {
 	local conf=()
+	use 3d || conf+=('-skip qt3d')
+	use 3d || conf+=('-skip qtcanvas3d')
 	use declarative || conf+=('-skip qtconnectivity')
 	use doc || conf+=('-skip qtdoc')
 	use enginio || conf+=('-skip qtenginio')
