@@ -19,7 +19,7 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}/qt-everywhere-opensource-src-$PV"
 
 src_configure() {
-	./configure -prefix /opt/qtsdk/${P} -xplatform ${PN#*-} -nomake tests -nomake examples -android-ndk /opt/android-ndk -android-sdk /opt/android-sdk-update-manager -android-ndk-host linux-x86_64 -android-toolchain-version 4.9 -skip qttranslations -no-warnings-are-errors -no-harfbuzz
+	./configure -prefix /opt/qtsdk/${P} -xplatform ${PN#*-} -nomake tests -nomake examples -android-ndk /opt/android-ndk -android-sdk /opt/android-sdk-update-manager -android-ndk-host linux-x86_64 -android-toolchain-version 4.9 -skip qttranslations -no-warnings-are-errors -no-harfbuzz -opensource -confirm-license
 }
 
 src_install() {
