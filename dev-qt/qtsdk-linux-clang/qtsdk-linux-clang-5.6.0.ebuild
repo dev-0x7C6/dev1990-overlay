@@ -12,7 +12,7 @@ SRC_URI="http://download.qt.io/official_releases/qt/${PV%.*}/${PV}/single/qt-eve
 
 LICENSE="LGPL-3"
 SLOT="${PV}"
-KEYWORDS="x86 amd64"
+KEYWORDS="arm arm64 x86 amd64"
 
 DEPEND=" \
 	sys-devel/clang \
