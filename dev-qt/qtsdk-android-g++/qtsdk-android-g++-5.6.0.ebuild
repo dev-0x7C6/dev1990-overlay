@@ -4,6 +4,10 @@
 
 EAPI=5
 
+unset CXXFLAGS
+unset CFLAGS
+unset LDFLAGS
+
 inherit qtsdk-android
 
 DESCRIPTION="Qt 5 developer bundle for GCC"
@@ -16,3 +20,7 @@ KEYWORDS="x86 amd64"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
+
+src_prepare() {
+	epatch "${FILESDIR}/${PN}-fix-ndk11.patch"
+}
