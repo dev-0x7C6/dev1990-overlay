@@ -15,6 +15,7 @@ IUSE="$IUSE
 	$(version_is_at_least 5.5 && echo 3d)
 	$(version_is_at_least 5.6 && echo serialbus)
 	$(version_is_at_least 5.6 && echo webview)
+	$(version_is_at_least 5.7 || echo enginio)
 	+declarative
 	+doc
 	+graphicaleffects
@@ -22,7 +23,6 @@ IUSE="$IUSE
 	+quick2
 	+serialport
 	connectivity
-	enginio
 	examples
 	location
 	multimedia
@@ -36,10 +36,13 @@ IUSE="$IUSE
 	webengine
 "
 
-S="${WORKDIR}/qt-everywhere-opensource-src-${PV}"
+export QP=${P}
+export QPN=${PN}
+export QPV=${PV/_/-}
 
-export QTSDK_INSTALL_DIR="/opt/qtsdk/${P}"
-export QTSDK_PLATFORM="${PN#*-}"
+S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
+export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"
+export QTSDK_PLATFORM="${QPN#*-}"
 
 qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
@@ -47,7 +50,7 @@ qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS+=('-opensource')
 	use declarative || QTSDK_CONFIGURE_FLAGS+=('-skip qtconnectivity')
 	use doc || QTSDK_CONFIGURE_FLAGS+=('-skip qtdoc')
-	use enginio || QTSDK_CONFIGURE_FLAGS+=('-skip qtenginio')
+	version_is_at_least 5.7 || { use enginio || QTSDK_CONFIGURE_FLAGS+=('-skip qtenginio'); }
 	use examples || QTSDK_CONFIGURE_FLAGS+=('-nomake examples')
 	use graphicaleffects || QTSDK_CONFIGURE_FLAGS+=('-skip qtgraphicaleffects')
 	use location || QTSDK_CONFIGURE_FLAGS+=('-skip qtlocation')
