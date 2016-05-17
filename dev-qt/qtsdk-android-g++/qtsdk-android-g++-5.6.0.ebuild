@@ -22,5 +22,5 @@ DEPEND=""
 RDEPEND="${DEPEND}"
 
 src_prepare() {
-	epatch "${FILESDIR}/${QPN}-fix-ndk11.patch"
+	version_is_at_least 5.7 || { epatch ${FILESDIR}/${QPN}-fix-ndk11.patch; }
 }
