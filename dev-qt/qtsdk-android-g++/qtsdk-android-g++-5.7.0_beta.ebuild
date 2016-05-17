@@ -1,0 +1,1 @@
+qtsdk-android-g++-5.6.0.ebuild

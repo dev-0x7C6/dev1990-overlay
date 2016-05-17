@@ -1,1 +1,1 @@
-qtsdk-linux-g++-5.7.0_beta.ebuild
+qtsdk-linux-g++-5.4.2.ebuild
