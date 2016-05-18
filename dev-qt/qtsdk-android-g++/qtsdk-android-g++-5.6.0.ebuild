@@ -15,7 +15,7 @@ HOMEPAGE=""
 SRC_URI="http://download.qt.io/official_releases/qt/5.6/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 
 LICENSE="LGPL-3"
-SLOT="${QPV}"
+SLOT="${QSLOT}"
 KEYWORDS="x86 amd64"
 
 DEPEND=""

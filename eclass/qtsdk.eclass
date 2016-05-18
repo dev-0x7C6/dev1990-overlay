@@ -39,6 +39,7 @@ IUSE="$IUSE
 export QP=${P}
 export QPN=${PN}
 export QPV=${PV/_/-}
+export QSLOT=${QPV%-*}
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
 export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"

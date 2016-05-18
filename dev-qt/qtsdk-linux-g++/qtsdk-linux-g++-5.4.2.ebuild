@@ -11,7 +11,7 @@ HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
 SRC_URI="http://download.qt.io/development_releases/qt/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 
 LICENSE="LGPL-3"
-SLOT="${QPV}"
+SLOT="${QSLOT}"
 KEYWORDS="arm arm64 x86 amd64"
 
 DEPEND=" \
