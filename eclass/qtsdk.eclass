@@ -9,7 +9,18 @@
 
 inherit versionator
 
+
 EXPORT_FUNCTIONS src_configure src_install
+export QP=${P}
+export QPN=${PN}
+export QPV=${PV/_/-}
+export QSLOT=${QPV%-*}
+
+QT_HTTP_DIRECTORY="official_releases/qt"
+[[ $QPV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
+
+
+SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 
 IUSE="$IUSE
 	$(version_is_at_least 5.5 && echo 3d)
@@ -36,10 +47,10 @@ IUSE="$IUSE
 	webengine
 "
 
-export QP=${P}
-export QPN=${PN}
-export QPV=${PV/_/-}
-export QSLOT=${QPV%-*}
+#export QP=${P}
+#export QPN=${PN}
+#export QPV=${PV/_/-}
+#export QSLOT=${QPV%-*}
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
 export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"
