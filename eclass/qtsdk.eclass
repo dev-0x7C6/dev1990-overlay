@@ -17,7 +17,7 @@ export QPV=${PV/_/-}
 export QSLOT=${QPV%-*}
 
 QT_HTTP_DIRECTORY="official_releases/qt"
-[[ $QPV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
+[[ $PV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
 
 
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
