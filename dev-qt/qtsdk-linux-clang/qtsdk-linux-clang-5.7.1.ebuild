@@ -1,0 +1,1 @@
+qtsdk-linux-clang-5.5.1.ebuild
