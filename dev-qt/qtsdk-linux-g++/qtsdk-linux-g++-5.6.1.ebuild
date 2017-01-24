@@ -1,1 +1,0 @@
-qtsdk-linux-g++-5.4.2.ebuild
