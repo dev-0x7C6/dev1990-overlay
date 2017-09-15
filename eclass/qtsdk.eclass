@@ -19,8 +19,8 @@ export QSLOT=${QPV%-*}
 QT_HTTP_DIRECTORY="official_releases/qt"
 [[ $PV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
 
-
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
+version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
 
 IUSE="$IUSE
 	$(version_is_at_least 5.5 && echo 3d)
@@ -47,12 +47,24 @@ IUSE="$IUSE
 	webengine
 "
 
+DEPEND="
+	dev-libs/double-conversion:=
+	dev-libs/glib:2
+	dev-libs/libpcre2[pcre16,unicode]
+	sys-libs/zlib
+	icu? ( dev-libs/icu:= )
+	!icu? ( virtual/libiconv )
+	systemd? ( sys-apps/systemd:= )
+"
+
 #export QP=${P}
 #export QPN=${PN}
 #export QPV=${PV/_/-}
 #export QSLOT=${QPV%-*}
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
+version_is_at_least 5.10 && S="${WORKDIR}/qt-everywhere-src-${QPV}"
+
 export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"
 export QTSDK_PLATFORM="${QPN#*-}"
 
