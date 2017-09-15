@@ -9,7 +9,6 @@
 
 inherit versionator
 
-
 EXPORT_FUNCTIONS src_configure src_install
 export QP=${P}
 export QPN=${PN}
@@ -45,6 +44,8 @@ IUSE="$IUSE
 	wayland
 	webchannel
 	webengine
+	icu
+	systemd
 "
 
 DEPEND="
