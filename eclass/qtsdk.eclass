@@ -35,12 +35,12 @@ IUSE="$IUSE
 	connectivity
 	examples
 	location
-	multimedia
+	+multimedia
 	script
 	sensors
 	svg
 	tests
-	tools
+	+tools
 	wayland
 	webchannel
 	webengine
