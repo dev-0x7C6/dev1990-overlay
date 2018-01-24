@@ -1,27 +1,24 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PLOCALES="cs de fr ja pl ru sl uk zh_CN zh_TW"
+PLOCALES="cs de fr ja pl ru sl uk zh-CN zh-TW"
 
-inherit l10n llvm qmake-utils toolchain-funcs virtualx xdg
+inherit llvm qmake-utils toolchain-funcs virtualx xdg
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
-HOMEPAGE="http://doc.qt.io/qtcreator/"
+HOMEPAGE="https://doc.qt.io/qtcreator/"
 LICENSE="GPL-3"
 SLOT="0"
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI=(
-		"git://code.qt.io/${PN}/${PN}.git"
-		"https://code.qt.io/git/${PN}/${PN}.git"
-	)
+	EGIT_REPO_URI="https://code.qt.io/${PN}/${PN}.git"
 else
 	MY_PV=${PV/_/-}
 	MY_P=${PN}-opensource-src-${MY_PV}
 	[[ ${MY_PV} == ${PV} ]] && MY_REL=official || MY_REL=development
-	SRC_URI="http://download.qt.io/${MY_REL}_releases/${PN/-}/${PV%.*}/${MY_PV}/${MY_P}.tar.xz"
+	SRC_URI="https://download.qt.io/${MY_REL}_releases/${PN/-}/${PV%.*}/${MY_PV}/${MY_P}.tar.xz"
 	KEYWORDS="~amd64 ~arm ~x86"
 	S=${WORKDIR}/${MY_P}
 fi
@@ -36,7 +33,7 @@ QTC_PLUGINS=('android:android|qmakeandroidsupport' autotools:autotoolsprojectman
 IUSE="doc systemd test +webengine ${QTC_PLUGINS[@]%:*}"
 
 # minimum Qt version required
-QT_PV="5.6.0:5"
+QT_PV="5.6.2:5"
 
 CDEPEND="
 	=dev-libs/botan-1.10*[-bindist,threads]
@@ -56,7 +53,7 @@ CDEPEND="
 	>=dev-qt/qtxml-${QT_PV}
 	clangcodemodel? ( >=sys-devel/clang-3.9:= )
 	designer? ( >=dev-qt/designer-${QT_PV} )
-	qbs? ( >=dev-util/qbs-1.8.1 )
+	qbs? ( >=dev-util/qbs-1.9.1 )
 	systemd? ( sys-apps/systemd:= )
 	webengine? ( >=dev-qt/qtwebengine-${QT_PV}[widgets] )
 "
@@ -84,7 +81,8 @@ RDEPEND="${CDEPEND}
 "
 # qt translations must also be installed or qt-creator translations won't be loaded
 for x in ${PLOCALES}; do
-	RDEPEND+=" linguas_${x}? ( >=dev-qt/qttranslations-${QT_PV} )"
+	IUSE+=" l10n_${x}"
+	RDEPEND+=" l10n_${x}? ( >=dev-qt/qttranslations-${QT_PV} )"
 done
 unset x
 
@@ -137,8 +135,9 @@ src_prepare() {
 	fi
 
 	# disable broken or unreliable tests
+	sed -i -e 's/\(manual\|tools\|unit\)//g' tests/tests.pro || die
 	sed -i -e '/sdktool/ d' tests/auto/auto.pro || die
-	sed -i -e '/dumpers\.pro/ d' tests/auto/debugger/debugger.pro || die
+	sed -i -e '/\(dumpers\|offsets\)\.pro/ d' tests/auto/debugger/debugger.pro || die
 	sed -i -e '/CONFIG -=/ s/$/ testcase/' tests/auto/extensionsystem/pluginmanager/correctplugins1/plugin?/plugin?.pro || die
 	sed -i -e '/timeline\(items\|notes\|selection\)renderpass/ d' tests/auto/timeline/timeline.pro || die
 	sed -i -e 's/\<memcheck\>//' tests/auto/valgrind/valgrind.pro || die
@@ -147,7 +146,11 @@ src_prepare() {
 	sed -i -e "/^CLANG_RESOURCE_DIR\s*=/ s:\$\${LLVM_LIBDIR}:${EPREFIX}/usr/lib:" src/shared/clang/clang_defines.pri || die
 
 	# fix translations
-	sed -i -e "/^LANGUAGES\s*=/ s:=.*:= $(l10n_get_locales):" share/qtcreator/translations/translations.pro || die
+	local lang languages=
+	for lang in ${PLOCALES}; do
+		use l10n_${lang} && languages+=" ${lang/-/_}"
+	done
+	sed -i -e "/^LANGUAGES\s*=/ s:=.*:=${languages}:" share/qtcreator/translations/translations.pro || die
 
 	# remove bundled qbs
 	rm -rf src/shared/qbs || die
