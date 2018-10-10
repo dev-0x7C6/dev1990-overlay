@@ -28,6 +28,7 @@ IUSE="$IUSE
 	$(version_is_at_least 5.7 || echo enginio)
 	+declarative
 	+doc
+	+bundle
 	+graphicaleffects
 	+quick
 	+quick2
@@ -73,6 +74,13 @@ qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
 	QTSDK_CONFIGURE_FLAGS+=('-confirm-license')
 	QTSDK_CONFIGURE_FLAGS+=('-opensource')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-zlib')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libjpeg')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libpng')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-xcb')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-xkbcommon')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-freetype')
+	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-harfbuzz')
 	use declarative || QTSDK_CONFIGURE_FLAGS+=('-skip qtconnectivity')
 	use doc || QTSDK_CONFIGURE_FLAGS+=('-skip qtdoc')
 	version_is_at_least 5.7 || { use enginio || QTSDK_CONFIGURE_FLAGS+=('-skip qtenginio'); }
