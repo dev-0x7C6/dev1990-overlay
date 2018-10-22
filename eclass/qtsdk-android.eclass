@@ -17,10 +17,10 @@ ANDROID_CLANG_TOOLCHAIN="clang7.0"
 ANDROID_NDK="/opt/android-ndk"
 ANDROID_SDK="/opt/android-sdk-update-manager"
 
-DEPEND=="dev-util/android-ndk"
+DEPEND="dev-util/android-ndk"
 RDEPEND="${DEPEND}"
 
 qtsdk-android_src_configure() {
 	qtsdk_populate_flags
-	./configure -prefix ${QTSDK_INSTALL_DIR} -platform linux-clang -xplatform ${QTSDK_PLATFORM} -android-ndk ${ANDROID_NDK} -android-sdk ${ANDROID_SDK} -android-ndk-host ${ANDROID_NDK_HOST} -android-toolchain-version clang7.0 -skip qttranslations -no-warnings-are-errors -no-harfbuzz -opensource -confirm-license ${QTSDK_CONFIGURE_FLAGS[@]} -no-pkg-config
+	./configure -prefix ${QTSDK_INSTALL_DIR} -platform linux-clang -xplatform ${QTSDK_PLATFORM} -android-ndk ${ANDROID_NDK} -android-sdk ${ANDROID_SDK} -android-ndk-host ${ANDROID_NDK_HOST} -android-toolchain-version 4.9 -skip qttranslations -no-warnings-are-errors -no-harfbuzz -opensource -confirm-license ${QTSDK_CONFIGURE_FLAGS[@]} -no-pkg-config
 }
