@@ -9,7 +9,7 @@ PVE=${PV/_/-}
 
 DESCRIPTION="Slic3r Prusa Edition"
 HOMEPAGE="https://github.com/prusa3d/Slic3r"
-SRC_URI="https://github.com/prusa3d/Slic3r/archive/version_${PVE}.tar.gz"
+SRC_URI="https://github.com/prusa3d/Slic3r/archive/version_${PVE}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="AGPL-3 CC-BY-3.0"
 SLOT="0"
