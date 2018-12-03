@@ -64,11 +64,14 @@ version_is_at_least 5.10 && S="${WORKDIR}/qt-everywhere-src-${QPV}"
 
 export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"
 export QTSDK_PLATFORM="${QPN#*-}"
+QTSDK_PLATFORM="${QTSDK_PLATFORM%*-dbg}"
 
 qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
 	QTSDK_CONFIGURE_FLAGS+=('-confirm-license')
 	QTSDK_CONFIGURE_FLAGS+=('-opensource')
+	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-debug')
+	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-no-optimize-debug')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-zlib')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libjpeg')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libpng')
@@ -100,7 +103,7 @@ qtsdk_populate_flags() {
 	version_is_at_least 5.6 && { use webview || QTSDK_CONFIGURE_FLAGS+=('-skip qtwebview'); }
 }
 
-qtsdk_src_configure() {	
+qtsdk_src_configure() {
 	qtsdk_populate_flags
 	./configure -prefix ${QTSDK_INSTALL_DIR} -platform ${QTSDK_PLATFORM} ${QTSDK_CONFIGURE_FLAGS[@]}
 }

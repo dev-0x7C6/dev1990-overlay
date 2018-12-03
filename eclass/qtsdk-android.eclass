@@ -3,8 +3,8 @@
 # $Id$
 
 #
-# Original Author: dev
-# Purpose: Managment of Qt sdk for android 
+# Original Author: Bartłomiej Burdukiewicz
+# Purpose: Multiple Qt SDK for developers
 #
 
 inherit qtsdk
