@@ -3,8 +3,8 @@
 # $Id$
 
 #
-# Original Author: dev
-# Purpose: Managment of Qt sdk 
+# Original Author: Bartłomiej Burdukiewicz
+# Purpose: Multiple Qt SDK for developers
 #
 
 inherit versionator
@@ -58,11 +58,6 @@ DEPEND="
 	!icu? ( virtual/libiconv )
 	systemd? ( sys-apps/systemd:= )
 "
-
-#export QP=${P}
-#export QPN=${PN}
-#export QPV=${PV/_/-}
-#export QSLOT=${QPV%-*}
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
 version_is_at_least 5.10 && S="${WORKDIR}/qt-everywhere-src-${QPV}"
