@@ -71,7 +71,7 @@ qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS+=('-confirm-license')
 	QTSDK_CONFIGURE_FLAGS+=('-opensource')
 	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-debug')
-	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-no-optimize-debug')
+	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-no-optimize-debug')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-zlib')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libjpeg')
 	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libpng')
