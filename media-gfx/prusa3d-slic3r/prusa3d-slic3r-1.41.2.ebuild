@@ -13,7 +13,7 @@ SRC_URI="https://github.com/prusa3d/Slic3r/archive/version_${PVE}.tar.gz -> ${P}
 
 LICENSE="AGPL-3 CC-BY-3.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="+gui test"
 
 RDEPEND="!media-gfx/slic3r
@@ -29,6 +29,7 @@ RDEPEND="!media-gfx/slic3r
 	dev-perl/Devel-Size
 	dev-perl/IO-stringy
 	dev-perl/XML-SAX-ExpatXS
+	sci-libs/nlopt
 	virtual/perl-Carp
 	virtual/perl-Encode
 	virtual/perl-File-Spec
