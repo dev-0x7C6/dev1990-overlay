@@ -21,7 +21,28 @@ QT_HTTP_DIRECTORY="official_releases/qt"
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
 
+#  Platform backends:
+#    -directfb .......... Enable DirectFB support [no] (Unix only)
+#    -eglfs ............. Enable EGLFS support [auto; no on Android and Windows]
+#    -gbm ............... Enable backends for GBM [auto] (Linux only)
+#    -kms ............... Enable backends for KMS [auto] (Linux only)
+#    -linuxfb ........... Enable Linux Framebuffer support [auto] (Linux only)
+#    -mirclient ......... Enable Mir client support [no] (Linux only)
+#    -xcb ............... Select used xcb-* libraries [system/qt/no]
+
+
+PLATFORM_BACKENDS="
+	platform_qpa_directfb
+	platform_qpa_eglfs
+	platform_qpa_gbm
+	platform_qpa_kms
+	platform_qpa_linuxfb
+	platform_qpa_mirclient
+	platform_qpa_xcb
+"
+
 IUSE="$IUSE
+	${PLATFORM_BACKENDS}
 	$(version_is_at_least 5.5 && echo 3d)
 	$(version_is_at_least 5.6 && echo serialbus)
 	$(version_is_at_least 5.6 && echo webview)

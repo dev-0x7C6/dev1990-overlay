@@ -28,7 +28,7 @@ fi
 QTC_PLUGINS=('android:android|qmakeandroidsupport' autotools:autotoolsprojectmanager baremetal bazaar
 	'+clang:clangcodemodel|clangformat|clangtools' clearcase cmake:cmakeprojectmanager cppcheck
 	cvs +designer git glsl:glsleditor +help ios lsp:languageclient mercurial modeling:modeleditor
-	nim perforce python:pythoneditor qbs:qbsprojectmanager qnx scxml:scxmleditor serialterminal
+	nim perforce python:pythoneditor qbs:qbsprojectmanager qnx scxml:scxmleditor +serialterminal
 	silversearcher subversion valgrind winrt)
 IUSE="doc systemd test +webengine ${QTC_PLUGINS[@]%:*}"
 
