@@ -21,6 +21,7 @@ QT_HTTP_DIRECTORY="official_releases/qt"
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
 
+#TODO:
 #  Platform backends:
 #    -directfb .......... Enable DirectFB support [no] (Unix only)
 #    -eglfs ............. Enable EGLFS support [auto; no on Android and Windows]
@@ -42,7 +43,6 @@ PLATFORM_BACKENDS="
 "
 
 IUSE="$IUSE
-	${PLATFORM_BACKENDS}
 	$(version_is_at_least 5.5 && echo 3d)
 	$(version_is_at_least 5.6 && echo serialbus)
 	$(version_is_at_least 5.6 && echo webview)
