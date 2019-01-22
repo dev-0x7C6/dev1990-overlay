@@ -21,7 +21,6 @@ QT_HTTP_DIRECTORY="official_releases/qt"
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
 
-#TODO:
 #  Platform backends:
 #    -directfb .......... Enable DirectFB support [no] (Unix only)
 #    -eglfs ............. Enable EGLFS support [auto; no on Android and Windows]
@@ -41,15 +40,21 @@ version_is_at_least 5.12 && QPA_PLATFORMS_DISABLED+=('mirclient')
 IUSE+=" ${QPA_PLATFORMS_ENABLED[@]/#/+qpa_platform_}"
 IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_platform_}"
 
+include_use_at_least() {
+	version_is_at_least ${1} && IUSE="${IUSE} ${2}"
+}
+
+include_use_at_least 5.5 3d
+include_use_at_least 5.6 serialbus
+include_use_at_least 5.6 webview
+include_use_at_least 5.7 +gamepad
+
 IUSE="
 	${IUSE}
-	$(version_is_at_least 5.5 && echo 3d)
-	$(version_is_at_least 5.6 && echo serialbus)
-	$(version_is_at_least 5.6 && echo webview)
-	$(version_is_at_least 5.7 || echo enginio)
 	+declarative
 	+doc
 	+fontconfig
+	+gamepad
 	+graphicaleffects
 	+icu
 	+multimedia
@@ -108,6 +113,10 @@ qtsdk_skip() {
 	use $use_flag || QTSDK_CONFIGURE_FLAGS+=("-skip ${module}")
 }
 
+qtsdk_skip_at_least_in() {
+	version_is_at_least ${1} && qtsdk_skip ${2} ${3}
+}
+
 qtsdk_nomake() {
 	local use_flag=${1}
 	local module=${2:-$use_flag}
@@ -147,7 +156,6 @@ qtsdk_populate_flags() {
 
 	qtsdk_skip declarative qtconnectivity
 	qtsdk_skip doc qtdoc
-	version_is_at_least 5.7 || qtskip enginio qtenginio
 	qtsdk_skip graphicaleffects qtgraphicaleffects
 	qtsdk_skip location qtlocation
 	qtsdk_skip multimedia qtmultimedia
@@ -161,10 +169,11 @@ qtsdk_populate_flags() {
 	qtsdk_skip wayland qtwayland
 	qtsdk_skip webchannel qtwebchannel
 	qtsdk_skip webengine qtwebengine
-	version_is_at_least 5.5 && qtsdk_skip 3d qt3d
-	version_is_at_least 5.5 && qtsdk_skip 3d qtcanvas3d
-	version_is_at_least 5.6 && qtsdk_skip serialbus qtserialbus
-	version_is_at_least 5.6 && qtsdk_skip webview qtwebview
+	qtsdk_skip_at_least_in 5.5 3d qt3d
+	qtsdk_skip_at_least_in 5.5 3d qtcanvas3d
+	qtsdk_skip_at_least_in 5.6 serialbus qtserialbus
+	qtsdk_skip_at_least_in 5.6 webview qtwebview
+	qtsdk_skip_at_least_in 5.7 gamepad qtgamepad
 }
 
 qtsdk_src_configure() {
