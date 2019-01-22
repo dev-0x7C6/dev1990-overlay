@@ -47,10 +47,11 @@ IUSE="
 	$(version_is_at_least 5.6 && echo serialbus)
 	$(version_is_at_least 5.6 && echo webview)
 	$(version_is_at_least 5.7 || echo enginio)
-	+bundle
 	+declarative
 	+doc
+	+fontconfig
 	+graphicaleffects
+	+icu
 	+multimedia
 	+quick
 	+quick2
@@ -58,7 +59,6 @@ IUSE="
 	+tools
 	connectivity
 	examples
-	icu
 	location
 	script
 	sensors
@@ -73,8 +73,13 @@ IUSE="
 RDEPEND="
 	dev-libs/double-conversion:=
 	dev-libs/glib:2
+	media-libs/fontconfig
+	>=media-libs/freetype-2.6.1:2
+	>=media-libs/harfbuzz-1.6.0:=
 	dev-libs/libpcre2[pcre16,unicode]
+	media-libs/libpng:0=
 	sys-libs/zlib
+	fontconfig? ( media-libs/fontconfig )
 	qpa_platform_xcb? ( x11-libs/libxcb:= )
 	icu? ( dev-libs/icu:= )
 	!icu? ( virtual/libiconv )
@@ -90,47 +95,76 @@ export QTSDK_INSTALL_DIR="/opt/qtsdk/${QP}"
 export QTSDK_PLATFORM="${QPN#*-}"
 QTSDK_PLATFORM="${QTSDK_PLATFORM%*-dbg}"
 
+qtsdk_mark_flag() {
+	local use_flag=${1}
+	local cfg_flag=${2:-$use_flag}
+	use $use_flag && QTSDK_CONFIGURE_FLAGS+=("-${cfg_flag}")
+	use $use_flag || QTSDK_CONFIGURE_FLAGS+=("-no-${cfg_flag}")
+}
+
+qtsdk_skip() {
+	local use_flag=${1}
+	local module=${2:-$use_flag}
+	use $use_flag || QTSDK_CONFIGURE_FLAGS+=("-skip ${module}")
+}
+
+qtsdk_nomake() {
+	local use_flag=${1}
+	local module=${2:-$use_flag}
+	use $use_flag || QTSDK_CONFIGURE_FLAGS+=("-nomake ${module}")
+}
+
+qtsdk_add_flag() {
+	QTSDK_CONFIGURE_FLAGS+=("${1:-undefined}")
+}
+
 qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
 
 	for platform in "${QPA_PLATFORMS[@]}"; do
-		use "qpa_platform_${platform}" && QTSDK_CONFIGURE_FLAGS+=("-${platform}")
-		use "qpa_platform_${platform}" || QTSDK_CONFIGURE_FLAGS+=("-no-${platform}")
+		qtsdk_mark_flag "qpa_platform_${platform}" "${platform}"
 	done
 
-	QTSDK_CONFIGURE_FLAGS+=('-confirm-license')
-	QTSDK_CONFIGURE_FLAGS+=('-opensource')
-	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-debug')
-	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-no-optimize-debug')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-zlib')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libjpeg')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-libpng')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-xcb')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-xkbcommon')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-freetype')
-	use bundle && QTSDK_CONFIGURE_FLAGS+=('-qt-harfbuzz')
-	use declarative || QTSDK_CONFIGURE_FLAGS+=('-skip qtconnectivity')
-	use doc || QTSDK_CONFIGURE_FLAGS+=('-skip qtdoc')
-	version_is_at_least 5.7 || { use enginio || QTSDK_CONFIGURE_FLAGS+=('-skip qtenginio'); }
-	use examples || QTSDK_CONFIGURE_FLAGS+=('-nomake examples')
-	use graphicaleffects || QTSDK_CONFIGURE_FLAGS+=('-skip qtgraphicaleffects')
-	use location || QTSDK_CONFIGURE_FLAGS+=('-skip qtlocation')
-	use multimedia || QTSDK_CONFIGURE_FLAGS+=('-skip qtmultimedia')
-	use quick || QTSDK_CONFIGURE_FLAGS+=('-skip qtquickcontrols')
-	use quick2 || QTSDK_CONFIGURE_FLAGS+=('-skip qtquickcontrols2')
-	use script || QTSDK_CONFIGURE_FLAGS+=('-skip qtscript')
-	use sensors || QTSDK_CONFIGURE_FLAGS+=('-skip qtsensors')
-	use serialport || QTSDK_CONFIGURE_FLAGS+=('-skip qtserialport')
-	use svg || QTSDK_CONFIGURE_FLAGS+=('-skip qtsvg')
-	use tests || QTSDK_CONFIGURE_FLAGS+=('-nomake tests')
-	use tools || QTSDK_CONFIGURE_FLAGS+=('-skip qttools')
-	use wayland || QTSDK_CONFIGURE_FLAGS+=('-skip qtwayland')
-	use webchannel || QTSDK_CONFIGURE_FLAGS+=('-skip qtwebchannel')
-	use webengine || QTSDK_CONFIGURE_FLAGS+=('-skip qtwebengine')
-	version_is_at_least 5.5 && { use 3d || QTSDK_CONFIGURE_FLAGS+=('-skip qt3d'); }
-	version_is_at_least 5.5 && { use 3d || QTSDK_CONFIGURE_FLAGS+=('-skip qtcanvas3d'); }
-	version_is_at_least 5.6 && { use serialbus || QTSDK_CONFIGURE_FLAGS+=('-skip qtserialbus'); }
-	version_is_at_least 5.6 && { use webview || QTSDK_CONFIGURE_FLAGS+=('-skip qtwebview'); }
+	qtsdk_mark_flag fontconfig
+	qtsdk_nomake examples
+	qtsdk_nomake tests
+
+	[[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -debug
+	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -no-optimize-debug
+
+	qtsdk_add_flag -confirm-license
+	qtsdk_add_flag -opensource
+
+	# BUG: system-zlib cannot compile with qtsdk
+	#  error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘OF’ ...
+	qtsdk_add_flag -qt-zlib
+	qtsdk_add_flag -system-libjpeg
+	qtsdk_add_flag -system-libpng
+	qtsdk_add_flag -system-xcb
+	qtsdk_add_flag -system-xkbcommon
+	qtsdk_add_flag -system-freetype
+	qtsdk_add_flag -system-harfbuzz
+
+	qtsdk_skip declarative qtconnectivity
+	qtsdk_skip doc qtdoc
+	version_is_at_least 5.7 || qtskip enginio qtenginio
+	qtsdk_skip graphicaleffects qtgraphicaleffects
+	qtsdk_skip location qtlocation
+	qtsdk_skip multimedia qtmultimedia
+	qtsdk_skip quick qtquickcontrols
+	qtsdk_skip quick2 qtquickcontrols2
+	qtsdk_skip script qtscript
+	qtsdk_skip sensors qtsensors
+	qtsdk_skip serialport qtserialport
+	qtsdk_skip svg qtsvg
+	qtsdk_skip tools qttools
+	qtsdk_skip wayland qtwayland
+	qtsdk_skip webchannel qtwebchannel
+	qtsdk_skip webengine qtwebengine
+	version_is_at_least 5.5 && qtsdk_skip 3d qt3d
+	version_is_at_least 5.5 && qtsdk_skip 3d qtcanvas3d
+	version_is_at_least 5.6 && qtsdk_skip serialbus qtserialbus
+	version_is_at_least 5.6 && qtsdk_skip webview qtwebview
 }
 
 qtsdk_src_configure() {
@@ -141,4 +175,3 @@ qtsdk_src_configure() {
 qtsdk_src_install() {
 	INSTALL_ROOT="${D}/" emake install
 }
-
