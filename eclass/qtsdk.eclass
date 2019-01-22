@@ -31,54 +31,57 @@ version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/
 #    -mirclient ......... Enable Mir client support [no] (Linux only)
 #    -xcb ............... Select used xcb-* libraries [system/qt/no]
 
+QPA_PLATFORMS=( directfb eglfs gbm kms linuxfb xcb )
+QPA_PLATFORMS_ENABLED+=( eglfs gbm kms xcb )
+QPA_PLATFORMS_DISABLED+=( directfb linuxfb )
 
-PLATFORM_BACKENDS="
-	platform_qpa_directfb
-	platform_qpa_eglfs
-	platform_qpa_gbm
-	platform_qpa_kms
-	platform_qpa_linuxfb
-	platform_qpa_mirclient
-	platform_qpa_xcb
-"
+version_is_at_least 5.12 && QPA_PLATFORMS+=('mirclient')
+version_is_at_least 5.12 && QPA_PLATFORMS_DISABLED+=('mirclient')
 
-IUSE="$IUSE
+IUSE+=" ${QPA_PLATFORMS_ENABLED[@]/#/+qpa_platform_}"
+IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_platform_}"
+
+IUSE="
+	${IUSE}
 	$(version_is_at_least 5.5 && echo 3d)
 	$(version_is_at_least 5.6 && echo serialbus)
 	$(version_is_at_least 5.6 && echo webview)
 	$(version_is_at_least 5.7 || echo enginio)
+	+bundle
 	+declarative
 	+doc
-	+bundle
 	+graphicaleffects
+	+multimedia
 	+quick
 	+quick2
 	+serialport
+	+tools
 	connectivity
 	examples
+	icu
 	location
-	+multimedia
 	script
 	sensors
 	svg
+	systemd
 	tests
-	+tools
 	wayland
 	webchannel
 	webengine
-	icu
-	systemd
 "
 
-DEPEND="
+RDEPEND="
 	dev-libs/double-conversion:=
 	dev-libs/glib:2
 	dev-libs/libpcre2[pcre16,unicode]
 	sys-libs/zlib
+	qpa_platform_xcb? ( x11-libs/libxcb:= )
 	icu? ( dev-libs/icu:= )
 	!icu? ( virtual/libiconv )
 	systemd? ( sys-apps/systemd:= )
 "
+
+DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/qt-everywhere-opensource-src-${QPV}"
 version_is_at_least 5.10 && S="${WORKDIR}/qt-everywhere-src-${QPV}"
@@ -89,6 +92,12 @@ QTSDK_PLATFORM="${QTSDK_PLATFORM%*-dbg}"
 
 qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
+
+	for platform in "${QPA_PLATFORMS[@]}"; do
+		use "qpa_platform_${platform}" && QTSDK_CONFIGURE_FLAGS+=("-${platform}")
+		use "qpa_platform_${platform}" || QTSDK_CONFIGURE_FLAGS+=("-no-${platform}")
+	done
+
 	QTSDK_CONFIGURE_FLAGS+=('-confirm-license')
 	QTSDK_CONFIGURE_FLAGS+=('-opensource')
 	[[ ${QPN#*-} == *"-dbg" ]] && QTSDK_CONFIGURE_FLAGS+=('-debug')
