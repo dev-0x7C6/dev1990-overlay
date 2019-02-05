@@ -150,7 +150,9 @@ qtsdk_populate_flags() {
 	qtsdk_add_flag -system-libjpeg
 	qtsdk_add_flag -system-libpng
 	qtsdk_add_flag -system-xcb
-	qtsdk_add_flag -system-xkbcommon
+	# ERROR: Invalid value given for boolean command line option 'xkbcommon'.
+	version_is_at_least 5.12.1 || qtsdk_add_flag -system-xkbcommon
+	version_is_at_least 5.12.1 && qtsdk_add_flag -xkbcommon
 	qtsdk_add_flag -system-freetype
 	qtsdk_add_flag -system-harfbuzz
 
