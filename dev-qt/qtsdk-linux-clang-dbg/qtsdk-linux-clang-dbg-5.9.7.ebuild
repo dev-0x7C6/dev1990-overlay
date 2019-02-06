@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit qtsdk
+inherit qtsdk-desktop
 
 DESCRIPTION="Qt 5 sdk for clang compiler"
 HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
