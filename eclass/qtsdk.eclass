@@ -109,9 +109,6 @@ qtsdk_add_flag() {
 
 qtsdk_populate_flags() {
 	QTSDK_CONFIGURE_FLAGS=()
-
-	qtsdk_populate_platform_flags
-
 	[[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -debug
 	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -no-optimize-debug
 
