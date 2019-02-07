@@ -1,15 +1,11 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
-
-#
-# Original Author: Bartłomiej Burdukiewicz
-# Purpose: Multiple Qt SDK for developers
-#
 
 inherit qtsdk
 
 EXPORT_FUNCTIONS src_configure
+
+DESCRIPTION="Complete QtSdk for mobile application development"
 
 ANDROID_TOOLCHAIN_VERSION="4.9"
 ANDROID_NDK_HOST="linux-x86_64"
@@ -18,8 +14,14 @@ ANDROID_SDK_PATH="/opt/android-sdk-update-manager"
 ANDROID_NDK_PLATFORM="android-22"
 ANDROID_ARCH="armeabi-v7a"
 
-DEPEND="dev-util/android-ndk"
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${RDEPEND}
+	dev-util/android-ndk
+	sys-devel/clang
+	sys-devel/gcc
+"
+
+DEPEND="${RDEPEND}"
 
 qtsdk-android_src_configure() {
 	qtsdk_populate_flags

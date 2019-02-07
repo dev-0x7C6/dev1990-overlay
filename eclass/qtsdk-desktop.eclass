@@ -1,15 +1,11 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
-
-#
-# Original Author: Bartłomiej Burdukiewicz
-# Purpose: Multiple Qt SDK for developers
-#
 
 inherit qtsdk
 
 EXPORT_FUNCTIONS src_configure
+
+DESCRIPTION="Complete QtSdk for desktop application development"
 
 #  Platform backends:
 #    -directfb .......... Enable DirectFB support [no] (Unix only)

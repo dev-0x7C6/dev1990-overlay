@@ -1,11 +1,5 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
-
-#
-# Original Author: Bartłomiej Burdukiewicz
-# Purpose: Multiple Qt SDK for developers
-#
 
 inherit versionator
 
@@ -14,6 +8,12 @@ export QP=${P}
 export QPN=${PN}
 export QPV=${PV/_/-}
 export QSLOT=${QPV%-*}
+
+LICENSE="LGPL-3"
+HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
+KEYWORDS="arm arm64 x86 amd64"
+
+SLOT="${QSLOT}"
 
 QT_HTTP_DIRECTORY="official_releases/qt"
 [[ $PV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
