@@ -7,7 +7,7 @@ inherit eutils perl-module cmake-utils
 
 PVE=${PV/_/-}
 
-DESCRIPTION="Slic3r Prusa Edition"
+DESCRIPTION="G-code generator for 3D printers (RepRap, Makerbot, Ultimaker etc.)"
 HOMEPAGE="https://github.com/prusa3d/Slic3r"
 SRC_URI="https://github.com/prusa3d/Slic3r/archive/version_${PVE}.tar.gz -> ${P}.tar.gz"
 
@@ -76,8 +76,8 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/Slic3r-version_${PVE}"
 
 src_prepare() {
-	pushd "${WORKDIR}/Slic3r-version_${PVE}" || die
-	eapply "${FILESDIR}"/no-locallib.patch
+	pushd "${S}" || die
+	sed -i lib/Slic3r.pm -e "s@FindBin::Bin@FindBin::RealBin@g" || die
 	eapply_user
 	popd || die
 }
@@ -96,7 +96,6 @@ src_install() {
 	MY_ARCH=$(basename $VENDOR_ARCH)
 	perl-module_src_install
 
-	# TODO: generate path based on perl iuse
 	insinto "${VENDOR_ARCH}"/auto
 	doins -r local-lib/lib/perl5/$MY_ARCH/auto/Slic3r
 
@@ -114,7 +113,6 @@ src_install() {
 
 	dosym "${VENDOR_LIB}"/Slic3r/slic3r.pl /usr/bin/slic3r.pl
 
-	# exit 1
 	make_desktop_entry slic3r.pl \
 		"Slic3r Prusa Edition"\
 		"${VENDOR_LIB}/Slic3r/resources/icons/Slic3r_128px.png" \
