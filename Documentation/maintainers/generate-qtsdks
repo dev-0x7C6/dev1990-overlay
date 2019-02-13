@@ -1,0 +1,22 @@
+#!/bin/bash
+
+WORKDIR="$(git rev-parse --show-toplevel)"
+TEMPLATES="Documentation/maintainers/templates"
+
+pushd "${WORKDIR}/${TEMPLATES}" || exit 1
+
+for i in $(find . -iname *.template)
+do
+	category=${i#./}
+	category=${category%.template}
+	app=${category#*/}
+
+	mkdir -p "${WORKDIR}/${category}" &> /dev/null
+	for current_version in `cat ${WORKDIR}/${TEMPLATES}/${category}.versions`
+	do
+		cp -fv "${WORKDIR}/${TEMPLATES}/${category}.template" ${WORKDIR}/${category}/${app}-${current_version}.ebuild
+		ebuild ${WORKDIR}/${category}/${app}-${current_version}.ebuild manifest
+	done
+done
+
+popd
