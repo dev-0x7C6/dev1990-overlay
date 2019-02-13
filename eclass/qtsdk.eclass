@@ -11,12 +11,16 @@ export QSLOT=${QPV%-*}
 
 LICENSE="LGPL-3"
 HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
-KEYWORDS="arm arm64 x86 amd64"
 
-SLOT="${QSLOT}"
+SLOT="${QSLOT%.*}/${QSLOT}"
 
-QT_HTTP_DIRECTORY="official_releases/qt"
-[[ $PV == *"_"* ]] && QT_HTTP_DIRECTORY="development_releases/qt"
+if [[ $PV == *"_"* ]]; then
+	KEYWORDS="~arm ~arm64 ~x86 ~amd64"
+	QT_HTTP_DIRECTORY="development_releases/qt"
+else
+	KEYWORDS="arm arm64 x86 amd64"
+	QT_HTTP_DIRECTORY="official_releases/qt"
+fi
 
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
