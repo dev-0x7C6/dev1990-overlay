@@ -1,7 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-inherit versionator
+inherit versionator check-reqs
+
+CHECKREQS_DISK_BUILD="6G"
 
 EXPORT_FUNCTIONS src_configure src_install
 export QP=${P}
