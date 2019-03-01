@@ -29,6 +29,7 @@ RDEPEND="!media-gfx/slic3r
 	dev-perl/Devel-Size
 	dev-perl/IO-stringy
 	dev-perl/XML-SAX-ExpatXS
+	dev-perl/local-lib
 	sci-libs/nlopt
 	virtual/perl-Carp
 	virtual/perl-Encode
