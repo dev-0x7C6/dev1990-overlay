@@ -1,7 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-inherit versionator check-reqs
+EAPI=7
+
+inherit check-reqs
 
 CHECKREQS_DISK_BUILD="16G"
 
@@ -24,6 +26,12 @@ else
 	QT_HTTP_DIRECTORY="official_releases/qt"
 fi
 
+# @FUNCTION: version_is_at_least
+# @USAGE: [version]
+version_is_at_least() {
+	ver_test "${PV}" -ge "${1}" && return 0 || return 1
+}
+
 SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-opensource-src-${QPV}.tar.xz"
 version_is_at_least 5.10 && SRC_URI="http://download.qt.io/${QT_HTTP_DIRECTORY}/${QPV%.*}/${QPV}/single/qt-everywhere-src-${QPV}.tar.xz"
 
@@ -41,7 +49,6 @@ IUSE="
 	+declarative
 	+doc
 	+fontconfig
-	+gamepad
 	+graphicaleffects
 	+icu
 	+multimedia
