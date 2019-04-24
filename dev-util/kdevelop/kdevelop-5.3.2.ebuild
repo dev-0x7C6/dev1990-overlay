@@ -1,19 +1,23 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-EGIT_BRANCH="5.2"
 KDE_HANDBOOK="forceoptional"
 KDE_TEST="true"
 VIRTUALDBUS_TEST="true"
 VIRTUALX_REQUIRED="test"
 inherit kde5
 
+if [[ ${KDE_BUILD_TYPE} = release ]]; then
+	SRC_URI="mirror://kde/stable/kdevelop/${PV}/src/${P}.tar.xz"
+	KEYWORDS="amd64 x86"
+fi
+
 DESCRIPTION="Integrated Development Environment, supporting KF5/Qt, C/C++ and much more"
+HOMEPAGE="https://www.kdevelop.org/"
 LICENSE="GPL-2 LGPL-2"
-IUSE="cvs +gdbui hex +plasma +qmake reviewboard subversion webkit"
-[[ ${KDE_BUILD_TYPE} = release ]] && KEYWORDS="amd64 x86"
+IUSE="+gdbui hex +plasma +qmake reviewboard subversion webkit"
 
 COMMON_DEPEND="
 	$(add_frameworks_dep karchive)
@@ -56,7 +60,6 @@ COMMON_DEPEND="
 	$(add_qt_dep qtxml)
 	dev-libs/grantlee:5
 	>=sys-devel/clang-3.8.0:=
-	x11-misc/shared-mime-info
 	gdbui? ( $(add_plasma_dep libksysguard) )
 	hex? ( app-editors/okteta:5 )
 	plasma? (
@@ -70,7 +73,7 @@ COMMON_DEPEND="
 		dev-libs/apr-util:1
 		dev-vcs/subversion
 	)
-	webkit? ( $(add_qt_dep qtwebkit) )
+	webkit? ( >=dev-qt/qtwebkit-5.212.0_pre20180120:5 )
 	!webkit? ( $(add_qt_dep qtwebengine 'widgets') )
 "
 DEPEND="${COMMON_DEPEND}
@@ -82,9 +85,7 @@ RDEPEND="${COMMON_DEPEND}
 	$(add_kdeapps_dep kio-extras)
 	dev-util/ninja
 	>=sys-devel/gdb-7.0[python]
-	cvs? ( dev-vcs/cvs )
 	reviewboard? ( $(add_kdeapps_dep ktp-accounts-kcm) )
-	!dev-util/kdevelop:4
 	!dev-util/kdevelop-clang
 	!dev-util/kdevelop-cppcheck
 	!dev-util/kdevelop-qmake
@@ -97,7 +98,6 @@ RESTRICT+=" test"
 
 src_configure() {
 	local mycmakeargs=(
-		-DBUILD_cvs=$(usex cvs)
 		$(cmake-utils_use_find_package gdbui KF5SysGuard)
 		-DBUILD_executeplasmoid=$(usex plasma)
 		$(cmake-utils_use_find_package plasma KF5Plasma)
@@ -126,5 +126,9 @@ pkg_postinst() {
 
 	if ! has_version "dev-util/heaptrack[qt5]" ; then
 		elog "For heap memory profiling support, please install dev-util/heaptrack"
+	fi
+
+	if ! has_version "dev-util/clazy" ; then
+		elog "For static C++ Qt code analysis support, please install dev-util/clazy"
 	fi
 }
