@@ -36,7 +36,7 @@ DEPEND="${RDEPEND}"
 qtsdk-desktop_src_configure() {
 	qtsdk_populate_flags
 	qtsdk_mark_flag fontconfig
-	
+
 	# BUG: system-zlib cannot compile with qtsdk
 	#  error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘OF’ ...
 

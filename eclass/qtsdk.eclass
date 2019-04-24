@@ -3,7 +3,7 @@
 
 inherit versionator check-reqs
 
-CHECKREQS_DISK_BUILD="6G"
+CHECKREQS_DISK_BUILD="16G"
 
 EXPORT_FUNCTIONS src_configure src_install
 export QP=${P}
@@ -114,12 +114,10 @@ qtsdk_add_flag() {
 }
 
 qtsdk_populate_flags() {
-	QTSDK_CONFIGURE_FLAGS=()
+	QTSDK_CONFIGURE_FLAGS=( "-confirm-license" "-opensource" )
 	[[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -debug
 	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -no-optimize-debug
 
-	qtsdk_add_flag -confirm-license
-	qtsdk_add_flag -opensource
 	qtsdk_nomake examples
 	qtsdk_nomake tests
 
