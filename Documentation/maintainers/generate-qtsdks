@@ -3,20 +3,28 @@
 WORKDIR="$(git rev-parse --show-toplevel)"
 TEMPLATES="Documentation/maintainers/templates"
 
-pushd "${WORKDIR}/${TEMPLATES}" || exit 1
+pushd "${WORKDIR}/${TEMPLATES}" 1> /dev/null || exit 1
 
-for i in $(find . -iname *.template)
-do
-	category=${i#./}
-	category=${category%.template}
-	app=${category#*/}
+function generate_qtsdk() {
+	local category=${1#./}
+	local category=${category%.template}
+	local app=${category#*/}
+	local last_ebuild=""
 
 	mkdir -p "${WORKDIR}/${category}" &> /dev/null
+
+	rm -rf ${WORKDIR}/${category}/*.ebuild
 	for current_version in `cat ${WORKDIR}/${TEMPLATES}/${category}.versions`
 	do
-		cp -fv "${WORKDIR}/${TEMPLATES}/${category}.template" ${WORKDIR}/${category}/${app}-${current_version}.ebuild
-		ebuild ${WORKDIR}/${category}/${app}-${current_version}.ebuild manifest
+		cp -f "${WORKDIR}/${TEMPLATES}/${category}.template" ${WORKDIR}/${category}/${app}-${current_version}.ebuild
+	        last_ebuild="${WORKDIR}/${category}/${app}-${current_version}.ebuild"
 	done
-done
+	ebuild "${last_ebuild}" manifest
+}
 
-popd
+for category in `find . -iname *.template`; do
+	generate_qtsdk "${category}" &
+done
+wait
+
+popd 1> /dev/null
