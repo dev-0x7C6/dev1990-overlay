@@ -1,0 +1,14 @@
+#!/bin/bash
+
+SDK_TO_REMOVE=${1}
+WORKDIR="$(git rev-parse --show-toplevel)"
+
+[[ -z ${SDK_TO_REMOVE} ]] && exit 1
+
+for i in $(find ${WORKDIR} -iname "*${SDK_TO_REMOVE}.ebuild" )
+do
+	git rm -f "${i}"
+done
+
+${WORKDIR}/Documentation/maintainers/generate-qtsdks
+
