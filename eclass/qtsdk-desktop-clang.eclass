@@ -7,7 +7,7 @@ inherit qtsdk-desktop
 
 RDEPEND="
 	${RDEPEND}
-	sys-devel/clang
+	sys-devel/clang:=
 "
 
 DEPEND="${RDEPEND}"

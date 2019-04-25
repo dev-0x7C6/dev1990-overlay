@@ -16,11 +16,13 @@ ANDROID_SDK_PATH="/opt/android-sdk-update-manager"
 ANDROID_NDK_PLATFORM="android-22"
 ANDROID_ARCH="armeabi-v7a"
 
+KEYWORDS="~amd64 ~x86"
+
 RDEPEND="
 	${RDEPEND}
 	>=dev-util/android-ndk-18
-	sys-devel/clang
-	sys-devel/gcc
+	sys-devel/clang:=
+	sys-devel/gcc:=
 "
 
 DEPEND="${RDEPEND}"

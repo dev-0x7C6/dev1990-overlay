@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<name>Bartłomiej Burdukiewicz</name>
+		<email>bartlomiej.burdukiewicz@gmail.com</email>
+	</maintainer>
+	<longdescription lang="en">
+Qt SDK leverages the power of the Qt framework and tools, combining them with tools designed specifically to streamline the creation of applications for mobile platforms, such as Symbian, Maemo, and MeeGo Harmattan in addition to desktop platforms, such as Microsoft Windows, Mac OS X, and Linux.
+</longdescription>
+	<use>
+		<flag name="3d">Build Qt3D module</flag>
+		<flag name="serialbus">Build Qt Serial Bus module</flag>
+		<flag name="webview">Build Qt WebView module</flag>
+		<flag name="gamepad">Build Qt Gamepad module</flag>
+		<flag name="declarative">Build Qt Declarative module</flag>
+		<flag name="graphicaleffects">Build Qt Graphical Effects module</flag>
+		<flag name="multimedia">Build Qt Multimedia module</flag>
+		<flag name="quick">Build with Qt Quick 1 support</flag>
+		<flag name="quick2">Build with Qt Quick 2 support</flag>
+		<flag name="serialport">Build Qt Serial Port module</flag>
+		<flag name="tools">Build with standard developer tools</flag>
+		<flag name="connectivity">Build Qt Connectivity module</flag>
+		<flag name="location">Build with location support</flag>
+		<flag name="script">Build Qt Script module</flag>
+		<flag name="sensors">Build Qt Sensor module</flag>
+		<flag name="tests">Build embedded tests</flag>
+		<flag name="webchannel">Build Qt WebChannel module</flag>
+		<flag name="webengine">Build Qt WebEngine module</flag>
+		<flag name="qpa_platform_eglfs">Build platform support for eglfs</flag>
+		<flag name="qpa_platform_gbm">Build platform support for gbm</flag>
+		<flag name="qpa_platform_mirclient">Build platform support for mir</flag>
+		<flag name="qpa_platform_kms">Build platform support for kms</flag>
+		<flag name="qpa_platform_xcb">Build platform support for xcb (X11)</flag>
+		<flag name="qpa_platform_directfb">Build platform support for directfb</flag>
+		<flag name="qpa_platform_linuxfb">Build platform support for linuxfb</flag>
+	</use>
+</pkgmetadata>

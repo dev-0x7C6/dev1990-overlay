@@ -17,6 +17,7 @@ function generate_qtsdk() {
 	for current_version in `cat ${WORKDIR}/${TEMPLATES}/${category}.versions`
 	do
 		cp -f "${WORKDIR}/${TEMPLATES}/${category}.template" ${WORKDIR}/${category}/${app}-${current_version}.ebuild
+		cp -f "${WORKDIR}/${TEMPLATES}/dev-qt/metadata.xml" ${WORKDIR}/${category}/
 	        last_ebuild="${WORKDIR}/${category}/${app}-${current_version}.ebuild"
 	done
 	ebuild "${last_ebuild}" manifest

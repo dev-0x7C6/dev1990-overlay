@@ -7,7 +7,7 @@ inherit qtsdk-desktop
 
 RDEPEND="
 	${RDEPEND}
-	sys-devel/gcc
+	sys-devel/gcc:=
 "
 
 DEPEND="${RDEPEND}"
