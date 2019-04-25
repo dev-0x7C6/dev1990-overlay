@@ -16,7 +16,7 @@ export QSLOT=${QPV%-*}
 LICENSE="LGPL-3"
 HOMEPAGE="https://github.com/dev-0x7C6/dev1990-overlay"
 
-SLOT="${QSLOT%.*}/${QSLOT}"
+SLOT="${QSLOT}"
 
 if [[ $PV == *"_"* ]]; then
 	KEYWORDS="~arm ~arm64 ~x86 ~amd64"
