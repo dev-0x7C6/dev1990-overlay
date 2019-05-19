@@ -29,6 +29,10 @@ CONFIG_CHECK="VIDEO_DEV"
 MODULE_NAMES="v4l2loopback(video:)"
 BUILD_TARGETS="all"
 
+PATCHES=(
+	"${FILESDIR}/v4l2l_get_timestamp.patch"
+)
+
 pkg_setup() {
 	linux-mod_pkg_setup
 	export KERNELRELEASE=${KV_FULL}
