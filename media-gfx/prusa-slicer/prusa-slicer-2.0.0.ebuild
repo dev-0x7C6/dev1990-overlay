@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit eutils cmake-utils
+inherit desktop eutils cmake-utils
 
 PVE=${PV/_/-}
 
