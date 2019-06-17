@@ -13,7 +13,7 @@ ANDROID_TOOLCHAIN_VERSION="4.9"
 ANDROID_NDK_HOST="linux-x86_64"
 ANDROID_NDK_PATH="/opt/android-ndk"
 ANDROID_SDK_PATH="/opt/android-sdk-update-manager"
-ANDROID_NDK_PLATFORM="android-22"
+ANDROID_NDK_PLATFORM="android-21"
 ANDROID_ARCH="armeabi-v7a"
 
 KEYWORDS="~amd64 ~x86"
