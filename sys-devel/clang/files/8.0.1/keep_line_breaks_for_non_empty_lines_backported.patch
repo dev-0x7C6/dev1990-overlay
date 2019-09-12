@@ -1,690 +1,184 @@
-Index: clang/include/clang/Format/Format.h
-===================================================================
---- clang/include/clang/Format/Format.h
-+++ clang/include/clang/Format/Format.h
-@@ -449,38 +449,38 @@
+From fa1b9053729ec6a4425a44ec5502dd388928274a Mon Sep 17 00:00:00 2001
+From: Ivan Donchevskii <ivan.donchevskii@qt.io>
+Date: Fri, 12 Oct 2018 08:19:25 +0200
+Subject: [clang-format] Introduce the flag which allows not to shrink lines
+
+--------------------------------------------------------------------------
+* https://reviews.llvm.org/D53072
+--------------------------------------------------------------------------
+
+Currently there's no way to prevent to lines optimization even
+if you have intentionally put <CR> to split the line.
+
+In general case it's fine. So I would prefer to have such option
+which you can enable in special cases (for me it's an IDE related use case).
+
+Revert this change if upstream clang-format offers better solution.
+
+This is a cherry pick from commits b748c82e3664c2e2e3d29645ede472d87b8cde63
+and 1817513d4f3a2e4e26be124dbe395340f798fd51.
+
+Change-Id: I9d2935b937bb68ea8dc59fac8463718475e9c080
+Reviewed-by: Orgad Shaneh <orgads@gmail.com>
+---
+ include/clang/Format/Format.h         | 13 +++++++++++++
+ lib/Format/Format.cpp                 |  4 ++++
+ lib/Format/UnwrappedLineFormatter.cpp |  9 +++++----
+ lib/Format/UnwrappedLineParser.cpp    |  2 ++
+ unittests/Format/FormatTest.cpp       | 16 ++++++++++++++++
+ 5 files changed, 40 insertions(+), 4 deletions(-)
+
+diff --git a/include/clang/Format/Format.h b/include/clang/Format/Format.h
+index cb37b0c890..b9c4df3d1a 100644
+--- a/include/clang/Format/Format.h
++++ b/include/clang/Format/Format.h
+@@ -22,6 +22,8 @@
+ #include "llvm/Support/Regex.h"
+ #include <system_error>
  
-   /// Different ways to break after the template declaration.
-   enum BreakTemplateDeclarationsStyle {
--      /// Do not force break before declaration.
--      /// ``PenaltyBreakTemplateDeclaration`` is taken into account.
--      /// \code
--      ///    template <typename T> T foo() {
--      ///    }
--      ///    template <typename T> T foo(int aaaaaaaaaaaaaaaaaaaaa,
--      ///                                int bbbbbbbbbbbbbbbbbbbbb) {
--      ///    }
--      /// \endcode
--      BTDS_No,
--      /// Force break after template declaration only when the following
--      /// declaration spans multiple lines.
--      /// \code
--      ///    template <typename T> T foo() {
--      ///    }
--      ///    template <typename T>
--      ///    T foo(int aaaaaaaaaaaaaaaaaaaaa,
--      ///          int bbbbbbbbbbbbbbbbbbbbb) {
--      ///    }
--      /// \endcode
--      BTDS_MultiLine,
--      /// Always break after template declaration.
--      /// \code
--      ///    template <typename T>
--      ///    T foo() {
--      ///    }
--      ///    template <typename T>
--      ///    T foo(int aaaaaaaaaaaaaaaaaaaaa,
--      ///          int bbbbbbbbbbbbbbbbbbbbb) {
--      ///    }
--      /// \endcode
--      BTDS_Yes
-+    /// Do not force break before declaration.
-+    /// ``PenaltyBreakTemplateDeclaration`` is taken into account.
-+    /// \code
-+    ///    template <typename T> T foo() {
-+    ///    }
-+    ///    template <typename T> T foo(int aaaaaaaaaaaaaaaaaaaaa,
-+    ///                                int bbbbbbbbbbbbbbbbbbbbb) {
-+    ///    }
-+    /// \endcode
-+    BTDS_No,
-+    /// Force break after template declaration only when the following
-+    /// declaration spans multiple lines.
-+    /// \code
-+    ///    template <typename T> T foo() {
-+    ///    }
-+    ///    template <typename T>
-+    ///    T foo(int aaaaaaaaaaaaaaaaaaaaa,
-+    ///          int bbbbbbbbbbbbbbbbbbbbb) {
-+    ///    }
-+    /// \endcode
-+    BTDS_MultiLine,
-+    /// Always break after template declaration.
-+    /// \code
-+    ///    template <typename T>
-+    ///    T foo() {
-+    ///    }
-+    ///    template <typename T>
-+    ///    T foo(int aaaaaaaaaaaaaaaaaaaaa,
-+    ///          int bbbbbbbbbbbbbbbbbbbbb) {
-+    ///    }
-+    /// \endcode
-+    BTDS_Yes
-   };
- 
-   /// The template declaration breaking style to use.
-@@ -2089,6 +2089,31 @@
-   unsigned Line = 0;
- };
- 
-+enum class ExtraFormattingOptions {
-+  None = 0x0,
-+  KeepLineBreaksForNonEmptyLines = 0x1
-+};
++#define KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
 +
-+inline ExtraFormattingOptions operator|(ExtraFormattingOptions lhs,
-+                                        ExtraFormattingOptions rhs) {
-+  using T = std::underlying_type_t<ExtraFormattingOptions>;
-+  return static_cast<ExtraFormattingOptions>(static_cast<T>(lhs) |
-+                                             static_cast<T>(rhs));
-+}
+ namespace llvm {
+ namespace vfs {
+ class FileSystem;
+@@ -1200,6 +1202,16 @@ struct FormatStyle {
+   /// \endcode
+   bool JavaScriptWrapImports;
+ 
++  /// If true, no line breaks are optimized out (works only with ColumnLimit = 0)
++  /// \code
++  ///    true:                                  false:
++  ///    int foo(int a,                 vs.     int foo(int a, int b) {
++  ///            int b) {
++  ///      bar();                                 bar();
++  ///    }                                      }
++  /// \endcode
++  bool KeepLineBreaksForNonEmptyLines;
 +
-+inline ExtraFormattingOptions operator&(ExtraFormattingOptions lhs,
-+                                        ExtraFormattingOptions rhs) {
-+  using T = std::underlying_type_t<ExtraFormattingOptions>;
-+  return static_cast<ExtraFormattingOptions>(static_cast<T>(lhs) &
-+                                             static_cast<T>(rhs));
-+}
-+
-+inline bool alwaysKeepLineBreaks(ExtraFormattingOptions FormattingOptions) {
-+  return (FormattingOptions &
-+          ExtraFormattingOptions::KeepLineBreaksForNonEmptyLines) !=
-+         ExtraFormattingOptions::None;
-+}
-+
- /// Reformats the given \p Ranges in \p Code.
- ///
- /// Each range is extended on either end to its next bigger logic unit, i.e.
-@@ -2110,8 +2135,13 @@
- /// a non-recoverable syntax error.
- tooling::Replacements reformat(const FormatStyle &Style, StringRef Code,
-                                ArrayRef<tooling::Range> Ranges,
--                               StringRef FileName,
--                               bool *IncompleteFormat);
-+                               StringRef FileName, bool *IncompleteFormat);
-+
-+tooling::Replacements reformat(const FormatStyle &Style,
-+                               ExtraFormattingOptions FormattingOptions,
-+                               StringRef Code, ArrayRef<tooling::Range> Ranges,
-+                               StringRef FileName = "<stdin>",
-+                               FormattingAttemptStatus *Status = nullptr);
- 
- /// Clean up any erroneous/redundant code in the given \p Ranges in \p
- /// Code.
-@@ -2222,6 +2252,6 @@
- namespace std {
- template <>
- struct is_error_code_enum<clang::format::ParseError> : std::true_type {};
--}
-+} // namespace std
- 
- #endif // LLVM_CLANG_FORMAT_FORMAT_H
-Index: clang/lib/Format/ContinuationIndenter.cpp
-===================================================================
---- clang/lib/Format/ContinuationIndenter.cpp
-+++ clang/lib/Format/ContinuationIndenter.cpp
-@@ -1573,6 +1573,7 @@
-   std::pair<tooling::Replacements, unsigned> Fixes = internal::reformat(
-       RawStringStyle, RawText, {tooling::Range(0, RawText.size())},
-       FirstStartColumn, NextStartColumn, LastStartColumn, "<stdin>",
-+      ExtraFormattingOptions::None,
-       /*Status=*/nullptr);
- 
-   auto NewCode = applyAllReplacements(RawText, Fixes.first);
-Index: clang/lib/Format/Format.cpp
-===================================================================
---- clang/lib/Format/Format.cpp
-+++ clang/lib/Format/Format.cpp
-@@ -605,8 +605,8 @@
-     return Style;
-   FormatStyle Expanded = Style;
-   Expanded.BraceWrapping = {false, false, false, false, false, false,
--                            false, false, false, false, false,
--                            false, false, true,  true,  true};
-+                            false, false, false, false, false, false,
-+                            false, true,  true,  true};
-   switch (Style.BreakBeforeBraces) {
-   case FormatStyle::BS_Linux:
-     Expanded.BraceWrapping.AfterClass = true;
-@@ -683,8 +683,8 @@
-   LLVMStyle.BreakBeforeTernaryOperators = true;
-   LLVMStyle.BreakBeforeBraces = FormatStyle::BS_Attach;
-   LLVMStyle.BraceWrapping = {false, false, false, false, false, false,
--                             false, false, false, false, false,
--                             false, false, true,  true,  true};
-+                             false, false, false, false, false, false,
-+                             false, true,  true,  true};
-   LLVMStyle.BreakAfterJavaFieldAnnotations = false;
-   LLVMStyle.BreakConstructorInitializers = FormatStyle::BCIS_BeforeColon;
-   LLVMStyle.BreakInheritanceList = FormatStyle::BILS_BeforeColon;
-@@ -1239,8 +1239,9 @@
- class Formatter : public TokenAnalyzer {
- public:
-   Formatter(const Environment &Env, const FormatStyle &Style,
-+            ExtraFormattingOptions FormattingOptions,
-             FormattingAttemptStatus *Status)
--      : TokenAnalyzer(Env, Style), Status(Status) {}
-+      : TokenAnalyzer(Env, Style, FormattingOptions), Status(Status) {}
- 
-   std::pair<tooling::Replacements, unsigned>
-   analyze(TokenAnnotator &Annotator,
-@@ -1263,7 +1264,7 @@
-     unsigned Penalty =
-         UnwrappedLineFormatter(&Indenter, &Whitespaces, Style,
-                                Tokens.getKeywords(), Env.getSourceManager(),
--                               Status)
-+                               FormattingOptions, Status)
-             .format(AnnotatedLines, /*DryRun=*/false,
-                     /*AdditionalIndent=*/0,
-                     /*FixBadIndentation=*/false,
-@@ -1769,8 +1770,8 @@
- static void sortCppIncludes(const FormatStyle &Style,
-                             const SmallVectorImpl<IncludeDirective> &Includes,
-                             ArrayRef<tooling::Range> Ranges, StringRef FileName,
--                            StringRef Code,
--                            tooling::Replacements &Replaces, unsigned *Cursor) {
-+                            StringRef Code, tooling::Replacements &Replaces,
-+                            unsigned *Cursor) {
-   unsigned IncludesBeginOffset = Includes.front().Offset;
-   unsigned IncludesEndOffset =
-       Includes.back().Offset + Includes.back().Text.size();
-@@ -2247,6 +2248,7 @@
- reformat(const FormatStyle &Style, StringRef Code,
-          ArrayRef<tooling::Range> Ranges, unsigned FirstStartColumn,
-          unsigned NextStartColumn, unsigned LastStartColumn, StringRef FileName,
-+         ExtraFormattingOptions FormattingOptions,
-          FormattingAttemptStatus *Status) {
-   FormatStyle Expanded = expandPresets(Style);
-   if (Expanded.DisableFormat)
-@@ -2280,7 +2282,7 @@
-     });
- 
-   Passes.emplace_back([&](const Environment &Env) {
--    return Formatter(Env, Expanded, Status).process();
-+    return Formatter(Env, Expanded, FormattingOptions, Status).process();
-   });
- 
-   auto Env =
-@@ -2317,7 +2319,21 @@
-   return internal::reformat(Style, Code, Ranges,
-                             /*FirstStartColumn=*/0,
-                             /*NextStartColumn=*/0,
--                            /*LastStartColumn=*/0, FileName, Status)
-+                            /*LastStartColumn=*/0, FileName,
-+                            ExtraFormattingOptions::None, Status)
-+      .first;
-+}
-+
-+tooling::Replacements reformat(const FormatStyle &Style,
-+                               ExtraFormattingOptions FormattingOptions,
-+                               StringRef Code, ArrayRef<tooling::Range> Ranges,
-+                               StringRef FileName,
-+                               FormattingAttemptStatus *Status) {
-+  return internal::reformat(Style, Code, Ranges,
-+      /*FirstStartColumn=*/0,
-+      /*NextStartColumn=*/0,
-+      /*LastStartColumn=*/0, FileName, FormattingOptions,
-+                            Status)
-       .first;
- }
- 
-Index: clang/lib/Format/FormatInternal.h
-===================================================================
---- clang/lib/Format/FormatInternal.h
-+++ clang/lib/Format/FormatInternal.h
-@@ -73,6 +73,7 @@
- reformat(const FormatStyle &Style, StringRef Code,
-          ArrayRef<tooling::Range> Ranges, unsigned FirstStartColumn,
-          unsigned NextStartColumn, unsigned LastStartColumn, StringRef FileName,
-+         ExtraFormattingOptions FormattingOptions,
-          FormattingAttemptStatus *Status);
- 
- } // namespace internal
-Index: clang/lib/Format/TokenAnalyzer.h
-===================================================================
---- clang/lib/Format/TokenAnalyzer.h
-+++ clang/lib/Format/TokenAnalyzer.h
-@@ -79,7 +79,9 @@
- 
- class TokenAnalyzer : public UnwrappedLineConsumer {
- public:
--  TokenAnalyzer(const Environment &Env, const FormatStyle &Style);
-+  TokenAnalyzer(
-+      const Environment &Env, const FormatStyle &Style,
-+      ExtraFormattingOptions FormattingOptions = ExtraFormattingOptions::None);
- 
-   std::pair<tooling::Replacements, unsigned> process();
- 
-@@ -100,6 +102,7 @@
-   AffectedRangeManager AffectedRangeMgr;
-   SmallVector<SmallVector<UnwrappedLine, 16>, 2> UnwrappedLines;
-   encoding::Encoding Encoding;
-+  ExtraFormattingOptions FormattingOptions;
- };
- 
- } // end namespace format
-Index: clang/lib/Format/TokenAnalyzer.cpp
-===================================================================
---- clang/lib/Format/TokenAnalyzer.cpp
-+++ clang/lib/Format/TokenAnalyzer.cpp
-@@ -48,12 +48,14 @@
-   }
- }
- 
--TokenAnalyzer::TokenAnalyzer(const Environment &Env, const FormatStyle &Style)
-+TokenAnalyzer::TokenAnalyzer(const Environment &Env, const FormatStyle &Style,
-+                             ExtraFormattingOptions FormattingOptions)
-     : Style(Style), Env(Env),
-       AffectedRangeMgr(Env.getSourceManager(), Env.getCharRanges()),
-       UnwrappedLines(1),
-       Encoding(encoding::detectEncoding(
--          Env.getSourceManager().getBufferData(Env.getFileID()))) {
-+          Env.getSourceManager().getBufferData(Env.getFileID()))),
-+      FormattingOptions(FormattingOptions) {
-   LLVM_DEBUG(
-       llvm::dbgs() << "File encoding: "
-                    << (Encoding == encoding::Encoding_UTF8 ? "UTF8" : "unknown")
-@@ -68,7 +70,8 @@
-                           Env.getFirstStartColumn(), Style, Encoding);
- 
-   UnwrappedLineParser Parser(Style, Tokens.getKeywords(),
--                             Env.getFirstStartColumn(), Tokens.lex(), *this);
-+                             Env.getFirstStartColumn(), Tokens.lex(), *this,
-+                             FormattingOptions);
-   Parser.parse();
-   assert(UnwrappedLines.rbegin()->empty());
-   unsigned Penalty = 0;
-Index: clang/lib/Format/UnwrappedLineFormatter.h
-===================================================================
---- clang/lib/Format/UnwrappedLineFormatter.h
-+++ clang/lib/Format/UnwrappedLineFormatter.h
-@@ -32,9 +32,11 @@
-                          const FormatStyle &Style,
-                          const AdditionalKeywords &Keywords,
-                          const SourceManager &SourceMgr,
-+                         ExtraFormattingOptions FormattingOptions,
-                          FormattingAttemptStatus *Status)
-       : Indenter(Indenter), Whitespaces(Whitespaces), Style(Style),
--        Keywords(Keywords), SourceMgr(SourceMgr), Status(Status) {}
-+        Keywords(Keywords), SourceMgr(SourceMgr),
-+        FormattingOptions(FormattingOptions), Status(Status) {}
- 
-   /// Format the current block and return the penalty.
-   unsigned format(const SmallVectorImpl<AnnotatedLine *> &Lines,
-@@ -67,6 +69,7 @@
-   const FormatStyle &Style;
-   const AdditionalKeywords &Keywords;
-   const SourceManager &SourceMgr;
-+  ExtraFormattingOptions FormattingOptions;
-   FormattingAttemptStatus *Status;
- };
- } // end namespace format
-Index: clang/lib/Format/UnwrappedLineFormatter.cpp
-===================================================================
---- clang/lib/Format/UnwrappedLineFormatter.cpp
-+++ clang/lib/Format/UnwrappedLineFormatter.cpp
-@@ -682,11 +682,12 @@
- /// Base class for classes that format one \c AnnotatedLine.
- class LineFormatter {
- public:
--  LineFormatter(ContinuationIndenter *Indenter, WhitespaceManager *Whitespaces,
--                const FormatStyle &Style,
--                UnwrappedLineFormatter *BlockFormatter)
-+  LineFormatter(
-+      ContinuationIndenter *Indenter, WhitespaceManager *Whitespaces,
-+      const FormatStyle &Style, UnwrappedLineFormatter *BlockFormatter,
-+      ExtraFormattingOptions FormattingOptions = ExtraFormattingOptions::None)
-       : Indenter(Indenter), Whitespaces(Whitespaces), Style(Style),
--        BlockFormatter(BlockFormatter) {}
-+        BlockFormatter(BlockFormatter), FormattingOptions(FormattingOptions) {}
+   /// If true, the empty line at the start of blocks is kept.
+   /// \code
+   ///    true:                                  false:
+@@ -1767,6 +1779,7 @@ struct FormatStyle {
+            JavaImportGroups == R.JavaImportGroups &&
+            JavaScriptQuotes == R.JavaScriptQuotes &&
+            JavaScriptWrapImports == R.JavaScriptWrapImports &&
++           KeepLineBreaksForNonEmptyLines == R.KeepLineBreaksForNonEmptyLines &&
+            KeepEmptyLinesAtTheStartOfBlocks ==
+                R.KeepEmptyLinesAtTheStartOfBlocks &&
+            MacroBlockBegin == R.MacroBlockBegin &&
+diff --git a/lib/Format/Format.cpp b/lib/Format/Format.cpp
+index 2c4f876054..61ea88626e 100644
+--- a/lib/Format/Format.cpp
++++ b/lib/Format/Format.cpp
+@@ -417,6 +417,8 @@ template <> struct MappingTraits<FormatStyle> {
+     IO.mapOptional("JavaImportGroups", Style.JavaImportGroups);
+     IO.mapOptional("JavaScriptQuotes", Style.JavaScriptQuotes);
+     IO.mapOptional("JavaScriptWrapImports", Style.JavaScriptWrapImports);
++    IO.mapOptional("KeepLineBreaksForNonEmptyLines",
++                   Style.KeepLineBreaksForNonEmptyLines);
+     IO.mapOptional("KeepEmptyLinesAtTheStartOfBlocks",
+                    Style.KeepEmptyLinesAtTheStartOfBlocks);
+     IO.mapOptional("MacroBlockBegin", Style.MacroBlockBegin);
+@@ -678,6 +680,7 @@ FormatStyle getLLVMStyle() {
+   LLVMStyle.JavaScriptWrapImports = true;
+   LLVMStyle.TabWidth = 8;
+   LLVMStyle.MaxEmptyLinesToKeep = 1;
++  LLVMStyle.KeepLineBreaksForNonEmptyLines = false;
+   LLVMStyle.KeepEmptyLinesAtTheStartOfBlocks = true;
+   LLVMStyle.NamespaceIndentation = FormatStyle::NI_None;
+   LLVMStyle.ObjCBinPackProtocolList = FormatStyle::BPS_Auto;
+@@ -745,6 +748,7 @@ FormatStyle getGoogleStyle(FormatStyle::LanguageKind Language) {
+       {"^<ext/.*\\.h>", 2}, {"^<.*\\.h>", 1}, {"^<.*", 2}, {".*", 3}};
+   GoogleStyle.IncludeStyle.IncludeIsMainRegex = "([-_](test|unittest))?$";
+   GoogleStyle.IndentCaseLabels = true;
++  GoogleStyle.KeepLineBreaksForNonEmptyLines = false;
+   GoogleStyle.KeepEmptyLinesAtTheStartOfBlocks = false;
+   GoogleStyle.ObjCBinPackProtocolList = FormatStyle::BPS_Never;
+   GoogleStyle.ObjCSpaceAfterProperty = false;
+diff --git a/lib/Format/UnwrappedLineFormatter.cpp b/lib/Format/UnwrappedLineFormatter.cpp
+index 6b6a9aff46..c88efbc686 100644
+--- a/lib/Format/UnwrappedLineFormatter.cpp
++++ b/lib/Format/UnwrappedLineFormatter.cpp
+@@ -684,7 +684,7 @@ public:
+   LineFormatter(ContinuationIndenter *Indenter, WhitespaceManager *Whitespaces,
+                 const FormatStyle &Style,
+                 UnwrappedLineFormatter *BlockFormatter)
+-      : Indenter(Indenter), Whitespaces(Whitespaces), Style(Style),
++      : Indenter(Indenter), Style(Style), Whitespaces(Whitespaces),
+         BlockFormatter(BlockFormatter) {}
    virtual ~LineFormatter() {}
  
-   /// Formats an \c AnnotatedLine and returns the penalty.
-@@ -726,7 +727,8 @@
+@@ -727,7 +727,8 @@ protected:
        // assert so that we can simply call this function for all tokens.
        return true;
  
 -    if (NewLine) {
 +    if (NewLine || (Previous.Children[0]->First->MustBreakBefore &&
-+                    alwaysKeepLineBreaks(FormattingOptions))) {
++                    Style.KeepLineBreaksForNonEmptyLines)) {
        int AdditionalIndent = State.Stack.back().Indent -
                               Previous.Children[0]->Level * Style.IndentWidth;
  
-@@ -776,6 +778,7 @@
+@@ -772,10 +773,10 @@ protected:
+   }
+ 
+   ContinuationIndenter *Indenter;
++  const FormatStyle &Style;
+ 
+ private:
    WhitespaceManager *Whitespaces;
-   const FormatStyle &Style;
+-  const FormatStyle &Style;
    UnwrappedLineFormatter *BlockFormatter;
-+  ExtraFormattingOptions FormattingOptions;
  };
  
- /// Formatter that keeps the existing line breaks.
-@@ -784,8 +787,10 @@
-   NoColumnLimitLineFormatter(ContinuationIndenter *Indenter,
-                              WhitespaceManager *Whitespaces,
-                              const FormatStyle &Style,
--                             UnwrappedLineFormatter *BlockFormatter)
--      : LineFormatter(Indenter, Whitespaces, Style, BlockFormatter) {}
-+                             UnwrappedLineFormatter *BlockFormatter,
-+                             ExtraFormattingOptions FormattingOptions)
-+      : LineFormatter(Indenter, Whitespaces, Style, BlockFormatter,
-+                      FormattingOptions) {}
- 
-   /// Formats the line, simply keeping all of the input's line breaking
-   /// decisions.
-@@ -821,7 +826,8 @@
-     LineState State =
-         Indenter->getInitialState(FirstIndent, FirstStartColumn, &Line, DryRun);
+@@ -798,7 +799,7 @@ public:
      while (State.NextToken) {
--      formatChildren(State, /*Newline=*/false, DryRun, Penalty);
-+      bool Newline = false;
-+      formatChildren(State, Newline, DryRun, Penalty);
-       Indenter->addTokenToState(
-           State, /*Newline=*/State.NextToken->MustBreakBefore, DryRun);
-     }
-@@ -1076,8 +1082,9 @@
-             !Style.JavaScriptWrapImports)) ||
-           (Style.isCSharp() &&
-            TheLine.InPPDirective); // don't split #regions in C#
--      if (Style.ColumnLimit == 0)
--        NoColumnLimitLineFormatter(Indenter, Whitespaces, Style, this)
-+      if (Style.ColumnLimit == 0 || alwaysKeepLineBreaks(FormattingOptions))
-+        NoColumnLimitLineFormatter(Indenter, Whitespaces, Style, this,
-+                                   FormattingOptions)
-             .formatLine(TheLine, NextStartColumn + Indent,
-                         FirstLine ? FirstStartColumn : 0, DryRun);
-       else if (FitsIntoOneLine)
-Index: clang/lib/Format/UnwrappedLineParser.h
-===================================================================
---- clang/lib/Format/UnwrappedLineParser.h
-+++ clang/lib/Format/UnwrappedLineParser.h
-@@ -77,7 +77,8 @@
-   UnwrappedLineParser(const FormatStyle &Style,
-                       const AdditionalKeywords &Keywords,
-                       unsigned FirstStartColumn, ArrayRef<FormatToken *> Tokens,
--                      UnwrappedLineConsumer &Callback);
-+                      UnwrappedLineConsumer &Callback,
-+                      ExtraFormattingOptions FormattingOptions);
- 
-   void parse();
- 
-@@ -274,6 +275,8 @@
-   // does not start at the beginning of the file.
-   unsigned FirstStartColumn;
- 
-+  ExtraFormattingOptions FormattingOptions;
-+
-   friend class ScopedLineState;
-   friend class CompoundStatementIndenter;
- };
-Index: clang/lib/Format/UnwrappedLineParser.cpp
-===================================================================
---- clang/lib/Format/UnwrappedLineParser.cpp
-+++ clang/lib/Format/UnwrappedLineParser.cpp
-@@ -222,11 +222,10 @@
- 
- } // end anonymous namespace
- 
--UnwrappedLineParser::UnwrappedLineParser(const FormatStyle &Style,
--                                         const AdditionalKeywords &Keywords,
--                                         unsigned FirstStartColumn,
--                                         ArrayRef<FormatToken *> Tokens,
--                                         UnwrappedLineConsumer &Callback)
-+UnwrappedLineParser::UnwrappedLineParser(
-+    const FormatStyle &Style, const AdditionalKeywords &Keywords,
-+    unsigned FirstStartColumn, ArrayRef<FormatToken *> Tokens,
-+    UnwrappedLineConsumer &Callback, ExtraFormattingOptions FormattingOptions)
-     : Line(new UnwrappedLine), MustBreakBeforeNextToken(false),
-       CurrentLines(&Lines), Style(Style), Keywords(Keywords),
-       CommentPragmasRegex(Style.CommentPragmas), Tokens(nullptr),
-@@ -234,7 +233,8 @@
-       IncludeGuard(Style.IndentPPDirectives == FormatStyle::PPDIS_None
-                        ? IG_Rejected
-                        : IG_Inited),
--      IncludeGuardToken(nullptr), FirstStartColumn(FirstStartColumn) {}
-+      IncludeGuardToken(nullptr), FirstStartColumn(FirstStartColumn),
-+      FormattingOptions(FormattingOptions) {}
- 
- void UnwrappedLineParser::reset() {
-   PPBranchLevel = -1;
-@@ -2613,6 +2613,10 @@
+       bool Newline =
+           Indenter->mustBreak(State) ||
+-          (Indenter->canBreak(State) && State.NextToken->NewlinesBefore > 0);
++          (State.NextToken->NewlinesBefore > 0 && Indenter->canBreak(State));
+       unsigned Penalty = 0;
+       formatChildren(State, Newline, /*DryRun=*/false, Penalty);
+       Indenter->addTokenToState(State, Newline, /*DryRun=*/false);
+diff --git a/lib/Format/UnwrappedLineParser.cpp b/lib/Format/UnwrappedLineParser.cpp
+index 3cd3c8f9cd..3aa30c7cb3 100644
+--- a/lib/Format/UnwrappedLineParser.cpp
++++ b/lib/Format/UnwrappedLineParser.cpp
+@@ -2554,6 +2554,8 @@ void UnwrappedLineParser::nextToken(int LevelDifference) {
    else
      readTokenWithJavaScriptASI();
    FormatTok->Previous = Previous;
-+
-+
-+  if (FormatTok->NewlinesBefore && alwaysKeepLineBreaks(FormattingOptions))
++  if (FormatTok->NewlinesBefore && Style.KeepLineBreaksForNonEmptyLines)
 +    FormatTok->MustBreakBefore = true;
  }
  
  void UnwrappedLineParser::distributeComments(
-Index: clang/tools/clang-format/ClangFormat.cpp
-===================================================================
---- clang/tools/clang-format/ClangFormat.cpp
-+++ clang/tools/clang-format/ClangFormat.cpp
-@@ -51,13 +51,14 @@
-                      "Can only be used with one input file."),
-             cl::cat(ClangFormatCategory));
- static cl::list<std::string>
--LineRanges("lines", cl::desc("<start line>:<end line> - format a range of\n"
--                             "lines (both 1-based).\n"
--                             "Multiple ranges can be formatted by specifying\n"
--                             "several -lines arguments.\n"
--                             "Can't be used with -offset and -length.\n"
--                             "Can only be used with one input file."),
--           cl::cat(ClangFormatCategory));
-+    LineRanges("lines",
-+               cl::desc("<start line>:<end line> - format a range of\n"
-+                        "lines (both 1-based).\n"
-+                        "Multiple ranges can be formatted by specifying\n"
-+                        "several -lines arguments.\n"
-+                        "Can't be used with -offset and -length.\n"
-+                        "Can only be used with one input file."),
-+               cl::cat(ClangFormatCategory));
- static cl::opt<std::string>
-     Style("style", cl::desc(clang::format::StyleOptionHelpDescription),
-           cl::init(clang::format::DefaultFormatStyle),
-@@ -72,12 +73,12 @@
-                   cl::init(clang::format::DefaultFallbackStyle),
-                   cl::cat(ClangFormatCategory));
- 
--static cl::opt<std::string>
--AssumeFileName("assume-filename",
--               cl::desc("When reading from stdin, clang-format assumes this\n"
--                        "filename to look for a style config file (with\n"
--                        "-style=file) and to determine the language."),
--               cl::init("<stdin>"), cl::cat(ClangFormatCategory));
-+static cl::opt<std::string> AssumeFileName(
-+    "assume-filename",
-+    cl::desc("When reading from stdin, clang-format assumes this\n"
-+             "filename to look for a style config file (with\n"
-+             "-style=file) and to determine the language."),
-+    cl::init("<stdin>"), cl::cat(ClangFormatCategory));
- 
- static cl::opt<bool> Inplace("i",
-                              cl::desc("Inplace edit <file>s, if specified."),
-@@ -107,6 +108,11 @@
-     Verbose("verbose", cl::desc("If set, shows the list of processed files"),
-             cl::cat(ClangFormatCategory));
- 
-+static cl::opt<bool>
-+    KeepLineBreaks("keep-line-breaks",
-+                   cl::desc("If set, keeps all existing line breaks"),
-+                   cl::cat(ClangFormatCategory));
-+
- static cl::list<std::string> FileNames(cl::Positional, cl::desc("[<file> ...]"),
-                                        cl::cat(ClangFormatCategory));
- 
-@@ -240,7 +246,9 @@
- }
- 
- // Returns true on error.
--static bool format(StringRef FileName) {
-+static bool
-+format(StringRef FileName,
-+       ExtraFormattingOptions ExtraOptions = ExtraFormattingOptions::None) {
-   if (!OutputXML && Inplace && FileName == "-") {
-     errs() << "error: cannot use -i when reading from stdin.\n";
-     return false;
-@@ -248,8 +256,8 @@
-   // On Windows, overwriting a file with an open file mapping doesn't work,
-   // so read the whole file into memory when formatting in-place.
-   ErrorOr<std::unique_ptr<MemoryBuffer>> CodeOrErr =
--      !OutputXML && Inplace ? MemoryBuffer::getFileAsStream(FileName) :
--                              MemoryBuffer::getFileOrSTDIN(FileName);
-+      !OutputXML && Inplace ? MemoryBuffer::getFileAsStream(FileName)
-+                            : MemoryBuffer::getFileOrSTDIN(FileName);
-   if (std::error_code EC = CodeOrErr.getError()) {
-     errs() << EC.message() << "\n";
-     return true;
-@@ -263,20 +271,21 @@
-   // https://en.wikipedia.org/wiki/Byte_order_mark#Byte_order_marks_by_encoding
-   // for more information.
-   StringRef BufStr = Code->getBuffer();
--  const char *InvalidBOM = llvm::StringSwitch<const char *>(BufStr)
--    .StartsWith(llvm::StringLiteral::withInnerNUL("\x00\x00\xFE\xFF"),
--                                                  "UTF-32 (BE)")
--    .StartsWith(llvm::StringLiteral::withInnerNUL("\xFF\xFE\x00\x00"),
--                                                  "UTF-32 (LE)")
--    .StartsWith("\xFE\xFF", "UTF-16 (BE)")
--    .StartsWith("\xFF\xFE", "UTF-16 (LE)")
--    .StartsWith("\x2B\x2F\x76", "UTF-7")
--    .StartsWith("\xF7\x64\x4C", "UTF-1")
--    .StartsWith("\xDD\x73\x66\x73", "UTF-EBCDIC")
--    .StartsWith("\x0E\xFE\xFF", "SCSU")
--    .StartsWith("\xFB\xEE\x28", "BOCU-1")
--    .StartsWith("\x84\x31\x95\x33", "GB-18030")
--    .Default(nullptr);
-+  const char *InvalidBOM =
-+      llvm::StringSwitch<const char *>(BufStr)
-+          .StartsWith(llvm::StringLiteral::withInnerNUL("\x00\x00\xFE\xFF"),
-+                      "UTF-32 (BE)")
-+          .StartsWith(llvm::StringLiteral::withInnerNUL("\xFF\xFE\x00\x00"),
-+                      "UTF-32 (LE)")
-+          .StartsWith("\xFE\xFF", "UTF-16 (BE)")
-+          .StartsWith("\xFF\xFE", "UTF-16 (LE)")
-+          .StartsWith("\x2B\x2F\x76", "UTF-7")
-+          .StartsWith("\xF7\x64\x4C", "UTF-1")
-+          .StartsWith("\xDD\x73\x66\x73", "UTF-EBCDIC")
-+          .StartsWith("\x0E\xFE\xFF", "SCSU")
-+          .StartsWith("\xFB\xEE\x28", "BOCU-1")
-+          .StartsWith("\x84\x31\x95\x33", "GB-18030")
-+          .Default(nullptr);
- 
-   if (InvalidBOM) {
-     errs() << "error: encoding with unsupported byte order mark \""
-@@ -312,8 +321,9 @@
-   // Get new affected ranges after sorting `#includes`.
-   Ranges = tooling::calculateRangesAfterReplacements(Replaces, Ranges);
-   FormattingAttemptStatus Status;
--  Replacements FormatChanges = reformat(*FormatStyle, *ChangedCode, Ranges,
--                                        AssumedFileName, &Status);
-+  Replacements FormatChanges =
-+      reformat(*FormatStyle, ExtraOptions, *ChangedCode, Ranges,
-+               AssumedFileName, &Status);
-   Replaces = Replaces.merge(FormatChanges);
-   if (OutputXML) {
-     outs() << "<?xml version='1.0'?>\n<replacements "
-@@ -360,8 +370,8 @@
-   return false;
- }
- 
--}  // namespace format
--}  // namespace clang
-+} // namespace format
-+} // namespace clang
- 
- static void PrintVersion(raw_ostream &OS) {
-   OS << clang::getClangToolFullVersion("clang-format") << '\n';
-@@ -418,12 +428,21 @@
-     return 0;
-   }
- 
-+  clang::format::ExtraFormattingOptions ExtraOptions =
-+      clang::format::ExtraFormattingOptions::None;
-+  if (KeepLineBreaks.getNumOccurrences() != 0) {
-+    ExtraOptions =
-+        ExtraOptions |
-+        clang::format::ExtraFormattingOptions::KeepLineBreaksForNonEmptyLines;
-+  }
-+
-   bool Error = false;
-   if (FileNames.empty()) {
-     Error = clang::format::format("-");
-     return Error ? 1 : 0;
-   }
--  if (FileNames.size() != 1 && (!Offsets.empty() || !Lengths.empty() || !LineRanges.empty())) {
-+  if (FileNames.size() != 1 &&
-+      (!Offsets.empty() || !Lengths.empty() || !LineRanges.empty())) {
-     errs() << "error: -offset, -length and -lines can only be used for "
-               "single file.\n";
-     return 1;
-@@ -431,7 +450,7 @@
-   for (const auto &FileName : FileNames) {
-     if (Verbose)
-       errs() << "Formatting " << FileName << "\n";
--    Error |= clang::format::format(FileName);
-+    Error |= clang::format::format(FileName, ExtraOptions);
-   }
-   return Error ? 1 : 0;
- }
-Index: clang/unittests/Format/FormatTest.cpp
-===================================================================
---- clang/unittests/Format/FormatTest.cpp
-+++ clang/unittests/Format/FormatTest.cpp
-@@ -35,15 +35,16 @@
-     SC_DoNotCheck
-   };
- 
--  std::string format(llvm::StringRef Code,
--                     const FormatStyle &Style = getLLVMStyle(),
--                     StatusCheck CheckComplete = SC_ExpectComplete) {
-+  std::string
-+  format(llvm::StringRef Code, const FormatStyle &Style = getLLVMStyle(),
-+         StatusCheck CheckComplete = SC_ExpectComplete,
-+         ExtraFormattingOptions ExtraOptions = ExtraFormattingOptions::None) {
-     LLVM_DEBUG(llvm::errs() << "---\n");
-     LLVM_DEBUG(llvm::errs() << Code << "\n\n");
-     std::vector<tooling::Range> Ranges(1, tooling::Range(0, Code.size()));
-     FormattingAttemptStatus Status;
-     tooling::Replacements Replaces =
--        reformat(Style, Code, Ranges, "<stdin>", &Status);
-+        reformat(Style, ExtraOptions, Code, Ranges, "<stdin>", &Status);
-     if (CheckComplete != SC_DoNotCheck) {
-       bool ExpectedCompleteFormat = CheckComplete == SC_ExpectComplete;
-       EXPECT_EQ(ExpectedCompleteFormat, Status.FormatComplete)
-@@ -395,6 +396,25 @@
+diff --git a/unittests/Format/FormatTest.cpp b/unittests/Format/FormatTest.cpp
+index c05fceb476..38906d9ee3 100644
+--- a/unittests/Format/FormatTest.cpp
++++ b/unittests/Format/FormatTest.cpp
+@@ -385,6 +385,22 @@ TEST_F(FormatTest, RemovesEmptyLines) {
+                    "  void funk() {}\n"
+                    "};",
                     Style));
- }
- 
-+TEST_F(FormatTest, KeepsLineBreaks) {
-+  FormatStyle Style = getLLVMStyle();
-+  EXPECT_EQ("if (a\n"
-+            "    && b) {\n"
++
++  Style.KeepLineBreaksForNonEmptyLines = true;
++  Style.ColumnLimit = 0;
++  EXPECT_EQ("int foo(int a,\n"
++            "        int b)\n"
++            "{\n"
 +            "}",
-+            format("if (a\n"
-+                   "    && b) {\n"
-+                   "}",
-+                   Style, SC_ExpectComplete,
-+                   ExtraFormattingOptions::KeepLineBreaksForNonEmptyLines));
++            format("int foo(int a,\n"
++                   "int b) {}",
++                   Style));
 +
 +  EXPECT_EQ("[]() {\n"
 +            "  foo(); }",
 +            format("[]() {\n"
 +                   "foo(); }",
-+                   Style, SC_ExpectComplete,
-+                   ExtraFormattingOptions::KeepLineBreaksForNonEmptyLines));
-+}
-+
++                   Style));
+ }
+ 
  TEST_F(FormatTest, RecognizesBinaryOperatorKeywords) {
-   verifyFormat("x = (a) and (b);");
-   verifyFormat("x = (a) or (b);");
+-- 
+cgit v1.2.1
+
