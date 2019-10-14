@@ -22,8 +22,8 @@ QPA_PLATFORMS=( directfb eglfs gbm kms linuxfb xcb )
 QPA_PLATFORMS_ENABLED+=( eglfs gbm kms xcb )
 QPA_PLATFORMS_DISABLED+=( directfb linuxfb )
 
-version_is_at_least 5.12 && QPA_PLATFORMS+=('mirclient')
-version_is_at_least 5.12 && QPA_PLATFORMS_DISABLED+=('mirclient')
+version_is_at_least 5.14 || ( version_is_at_least 5.12 && QPA_PLATFORMS+=('mirclient') )
+version_is_at_least 5.14 || ( version_is_at_least 5.12 && QPA_PLATFORMS_DISABLED+=('mirclient') )
 
 IUSE+=" ${QPA_PLATFORMS_ENABLED[@]/#/+qpa_platform_}"
 IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_platform_}"
