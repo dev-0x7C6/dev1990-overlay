@@ -1,44 +1,27 @@
 # This Gentoo overlay provides
-* ebuilds for multiple qtsdks
-* ebuilds for new versions for qtcreator and kdevelop
-* ebuilds for prusa slic3r edition
+* Multiple Qt SDKs
+* Latest Qt Creator and KDevelop
+* Latest PrusaSlicer
+* Personal projects
 * and many other
 
-# Multislot QtSdk for development
-With multislot qtsdk you can compile and install multiple versions of qtsdk in your system and maintain them using beloved portage system
+## Qt SDK - example of multiple installations
 
 ```bash
-dev@navi /opt/qtsdk $ emerge qtsdk-linux-clang:5.12.0
-dev@navi /opt/qtsdk $ emerge qtsdk-linux-clang:5.11.3
-...
+larry@gentoo /opt/qtsdk $ emerge qtsdk-linux-clang:5.13.1
+larry@gentoo /opt/qtsdk $ emerge qtsdk-linux-clang:5.12.5
 
-dev@navi /opt/qtsdk $ tree -L 1
+larry@gentoo $ tree -L 1 -f /opt/qtsdk
 .
-├── qtsdk-linux-clang-5.10.1
-├── qtsdk-linux-clang-5.11.3
-├── qtsdk-linux-clang-5.12.0
-├── qtsdk-linux-clang-5.6.3
-├── qtsdk-linux-clang-5.9.7
-├── qtsdk-linux-clang-dbg-5.10.1
-├── qtsdk-linux-clang-dbg-5.11.3
-├── qtsdk-linux-clang-dbg-5.12.0
-├── qtsdk-linux-clang-dbg-5.6.3
-├── qtsdk-linux-clang-dbg-5.9.7
-├── qtsdk-linux-g++-5.10.1
-├── qtsdk-linux-g++-5.11.3
-├── qtsdk-linux-g++-5.12.0
-├── qtsdk-linux-g++-5.6.3
-├── qtsdk-linux-g++-5.9.7
-├── qtsdk-linux-g++-dbg-5.10.1
-├── qtsdk-linux-g++-dbg-5.11.3
-├── qtsdk-linux-g++-dbg-5.12.0
-├── qtsdk-linux-g++-dbg-5.6.3
-└── qtsdk-linux-g++-dbg-5.9.7
+├── /opt/qtsdk/qtsdk-linux-g++-5.13.1
+├── /opt/qtsdk/qtsdk-linux-g++-5.12.5
+├── /opt/qtsdk/qtsdk-linux-clang-5.13.1
+├── /opt/qtsdk/qtsdk-linux-clang-5.12.5
 ```
 
+# Qt SDK for Android
+Experimental support for Qt SDK for Android
 
-# Qt + Android = <3
-Experimental support for qtsdk for android 
 ```bash
-dev@navi /opt/qtsdk $ emerge qtsdk-android-clang
+larry@gentoo /opt/qtsdk $ emerge qtsdk-android-clang:5.14.0
 ```
