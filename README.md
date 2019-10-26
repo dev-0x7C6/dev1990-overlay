@@ -19,7 +19,7 @@ larry@gentoo $ tree -L 1 -f /opt/qtsdk
 ├── /opt/qtsdk/qtsdk-linux-clang-5.12.5
 ```
 
-# Qt SDK for Android
+## Qt SDK for Android
 Experimental support for Qt SDK for Android
 
 ```bash
