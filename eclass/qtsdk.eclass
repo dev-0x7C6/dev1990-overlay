@@ -23,7 +23,7 @@ if [[ $PV == *"_"* ]]; then
 	QT_HTTP_DIRECTORY="development_releases/qt"
 else
 	KEYWORDS="amd64 ~arm ~arm64 x86"
-	QT_HTTP_DIRECTORY="official_releases/qt"
+	QT_HTTP_DIRECTORY="archive/qt/"
 fi
 
 # @FUNCTION: version_is_at_least
@@ -39,6 +39,8 @@ include_use_at_least() {
 	version_is_at_least ${1} && IUSE="${IUSE} ${2}"
 }
 
+CXX_STANDARDS=( detect 11 14 17 2a )
+
 include_use_at_least 5.5 3d
 include_use_at_least 5.6 serialbus
 include_use_at_least 5.6 webview
@@ -46,6 +48,7 @@ include_use_at_least 5.7 +gamepad
 
 IUSE="
 	${IUSE}
+	+${CXX_STANDARDS[@]/#/cxx_}
 	+declarative
 	+doc
 	+fontconfig
@@ -67,6 +70,10 @@ IUSE="
 	wayland
 	webchannel
 	webengine
+"
+
+REQUIRED_USE="
+	^^ ( ${CXX_STANDARDS[@]/#/cxx_} )
 "
 
 RDEPEND="
@@ -117,11 +124,13 @@ qtsdk_nomake() {
 }
 
 qtsdk_add_flag() {
-	QTSDK_CONFIGURE_FLAGS+=("${1:-undefined}")
+	for arg; do QTSDK_CONFIGURE_FLAGS+=("${arg}"); done
 }
 
 qtsdk_populate_flags() {
-	QTSDK_CONFIGURE_FLAGS=( "-confirm-license" "-opensource" )
+	qtsdk_add_flag -confirm-license
+	qtsdk_add_flag -opensource
+
 	[[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -debug
 	version_is_at_least 5.9 && [[ ${QPN#*-} == *"-dbg" ]] && qtsdk_add_flag -no-optimize-debug
 
@@ -129,7 +138,12 @@ qtsdk_populate_flags() {
 	qtsdk_nomake tests
 
 	for platform in "${QPA_PLATFORMS[@]}"; do
-		qtsdk_mark_flag "qpa_platform_${platform}" "${platform}"
+		qtsdk_mark_flag "qpa_${platform}" "${platform}"
+	done
+
+	for standard in ${CXX_STANDARDS[@]}; do
+		use cxx_detect && continue
+		use cxx_${standard} && qtsdk_add_flag -c++std c++${standard}
 	done
 
 	qtsdk_skip declarative qtconnectivity

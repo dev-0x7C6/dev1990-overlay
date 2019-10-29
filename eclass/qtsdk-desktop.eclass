@@ -25,12 +25,12 @@ QPA_PLATFORMS_DISABLED+=( directfb linuxfb )
 version_is_at_least 5.14 || { version_is_at_least 5.12 && QPA_PLATFORMS+=('mirclient'); }
 version_is_at_least 5.14 || { version_is_at_least 5.12 && QPA_PLATFORMS_DISABLED+=('mirclient'); }
 
-IUSE+=" ${QPA_PLATFORMS_ENABLED[@]/#/+qpa_platform_}"
-IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_platform_}"
+IUSE+=" ${QPA_PLATFORMS_ENABLED[@]/#/+qpa_}"
+IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_}"
 
 RDEPEND="
 	${RDEPEND}
-	qpa_platform_xcb? ( x11-libs/libxcb:= )
+	qpa_xcb? ( x11-libs/libxcb:= )
 "
 
 DEPEND="${RDEPEND}"
