@@ -22,6 +22,7 @@ IUSE="
 "
 
 RDEPEND="
+	X? ( x11-libs/libXext )
 	dev-qt/qtcore:5
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5

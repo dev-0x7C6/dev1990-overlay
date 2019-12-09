@@ -23,6 +23,7 @@ IUSE="
 	rpi4
 	tests
 	benchmarks
+	systemd
 "
 
 REQUIRED_USE="
@@ -33,6 +34,7 @@ REQUIRED_USE="
 
 RDEPEND="
 	X? ( x11-libs/libXext )
+	systemd? ( sys-apps/systemd )
 	dev-qt/qtcore:5
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5
@@ -56,6 +58,7 @@ src_configure() {
 		-DOPTIMIZE_RPI4=$(usex rpi4)
 		-DTESTS=$(usex tests)
 		-DBENCHMARKS=$(usex benchmarks)
+		-DSYSTEMD=$(usex systemd)
 	)
 	cmake-utils_src_configure
 }
