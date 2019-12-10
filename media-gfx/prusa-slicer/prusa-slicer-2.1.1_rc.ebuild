@@ -13,7 +13,7 @@ SRC_URI="https://github.com/prusa3d/PrusaSlicer/archive/version_${PVE}.tar.gz ->
 
 LICENSE="AGPL-3 CC-BY-3.0"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND="!media-gfx/slic3r
 	>=dev-libs/boost-1.55[threads]
