@@ -77,7 +77,7 @@ qtsdk-android_src_configure() {
 	qtsdk-select-ndk
 	use amd64 && qtsdk_add_flag -android-ndk-host linux-x86_64
 	use x86 && qtsdk_add_flag -android-ndk-host linux-x86
-	version_is_at_least 5.14 && qtsdk_add_flag -android-abis armeabi-v7a,arm64-v8a
+	version_is_at_least 5.14 && qtsdk_add_flag -android-abis armeabi-v7a,arm64-v8a,x86,x86_64
 	version_is_at_least 5.14 || qtsdk_add_flag -android-arch armeabi-v7a
 	version_is_at_least 5.14 || qtsdk_add_flag -android-toolchain-version 4.9
 
