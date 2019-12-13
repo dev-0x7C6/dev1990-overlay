@@ -2,8 +2,14 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
+		<email>bartlomiej.burdukiewicz@gmail.com</email>
+		<name>Bartłomiej Burdukiewicz</email>
+		<description>dev1990-overlay version of ebuild (based on official one)</description>
+	</maintainer>
+	<maintainer type="person">
 		<email>pesa@gentoo.org</email>
 		<name>Davide Pesavento</name>
+		<description>official portage version of ebuild</description>
 	</maintainer>
 	<maintainer type="project">
 		<email>qt@gentoo.org</email>
