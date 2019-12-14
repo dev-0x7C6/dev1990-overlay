@@ -3,7 +3,7 @@
 <pkgmetadata>
 	<maintainer type="person">
 		<email>bartlomiej.burdukiewicz@gmail.com</email>
-		<name>Bartłomiej Burdukiewicz</email>
+		<name>Bartłomiej Burdukiewicz</name>
 		<description>dev1990-overlay version of ebuild (based on official one)</description>
 	</maintainer>
 	<maintainer type="person">
