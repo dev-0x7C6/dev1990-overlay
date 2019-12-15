@@ -39,7 +39,7 @@ RDEPEND="
 	dev-qt/qtwebsockets:5
 	dev-qt/qtserialport:5
 	dev-qt/qtnetwork:5
-	dev-qt/qtmultimedia:5
+	dev-qt/qtmultimedia:5[gstreamer]
 	tests? ( dev-cpp/gtest )
 	benchmarks? ( dev-libs/google-benchmark )
 "
