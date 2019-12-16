@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a one-line script
+    - name: docker pull
       run: docker pull mgorny/gentoo-overlay-ci
-    - name: Run a multi-line script
+    - name: docker run
       run: docker run -e REPO=dev1990-overlay mgorny/gentoo-overlay-ci
