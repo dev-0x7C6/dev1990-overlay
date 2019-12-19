@@ -22,7 +22,7 @@ if [[ $PV == *"_"* ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 	QT_HTTP_DIRECTORY="development_releases/qt"
 else
-	KEYWORDS="amd64 ~arm ~arm64 x86"
+	KEYWORDS="amd64 arm arm64 x86"
 	QT_HTTP_DIRECTORY="archive/qt/"
 fi
 
