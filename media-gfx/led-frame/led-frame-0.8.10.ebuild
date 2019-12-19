@@ -9,9 +9,9 @@ DESCRIPTION="Abientled for your monitor"
 HOMEPAGE="https://github.com/dev-0x7C6/led-frame"
 SRC_URI="https://github.com/dev-0x7C6/led-frame/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="LGPL-2.1"
+LICENSE="GPL-3"
+KEYWORDS="amd64 arm arm64 x86"
 SLOT="0"
-KEYWORDS="amd64 x86"
 
 IUSE="
 	+X

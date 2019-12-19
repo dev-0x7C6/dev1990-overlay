@@ -12,8 +12,8 @@ EGIT_REPO_URI="https://github.com/dev-0x7C6/led-frame.git"
 EGIT_SUBMODULES=( '*' 'formatter' )
 EGIT_COMMIT="v${PV}"
 
-LICENSE="GPL-3.0"
-KEYWORDS="amd64 x86 arm arm64"
+LICENSE="GPL-3"
+KEYWORDS="amd64 arm arm64 x86"
 SLOT="0"
 
 IUSE="
