@@ -12,9 +12,9 @@ EGIT_REPO_URI="https://github.com/dev-0x7C6/laser-engraver.git"
 EGIT_SUBMODULES=( '*' 'formatter' )
 EGIT_COMMIT="v${PV}"
 
-LICENSE="GPL-3.0"
+LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64 ~arm ~arm64 x86"
 
 RDEPEND="
 	dev-qt/qtcore:5
