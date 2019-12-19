@@ -7,7 +7,7 @@ inherit qtsdk
 
 EXPORT_FUNCTIONS src_configure
 
-DESCRIPTION="Complete QtSdk for desktop application development"
+DESCRIPTION="Complete Qt SDK for desktop application development"
 
 #  Platform backends:
 #    -directfb .......... Enable DirectFB support [no] (Unix only)

@@ -7,7 +7,7 @@ inherit qtsdk
 
 EXPORT_FUNCTIONS src_configure
 
-DESCRIPTION="Complete QtSdk for mobile application development"
+DESCRIPTION="Complete Qt SDK for mobile application development"
 
 KEYWORDS="~amd64 ~x86"
 
