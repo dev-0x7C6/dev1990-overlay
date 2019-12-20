@@ -1,0 +1,78 @@
+From 2e8442def7a42d90be50041ee171dad21cfab7d6 Mon Sep 17 00:00:00 2001
+From: Nikolai Kosjar <nikolai.kosjar@qt.io>
+Date: Thu, 19 Dec 2019 10:56:20 +0100
+Subject: [PATCH] Clang: Fix removing gcc internal include paths
+
+Amends 5165c037ebbc3948d777595610bc62beb275a9a8.
+
+Gentoo has the standard library headers installed in e.g.
+<installdir>/include/g++-v8 and we excluded those. MinGW with the
+standard library headers in <installdir>/include/c++ was whitelisted.
+
+Instead of whitelistening more dirs that could contain standard library
+headers, regard
+
+  <installdir>/include
+  <installdir>/include-fixed
+
+as gcc internal include paths to remove. These seem to be stable across
+distributions.
+
+Task-number: QTCREATORBUG-23330
+Change-Id: I44965d2030b4ea5a9dd269400faf19c3df89f5a6
+---
+ src/plugins/cpptools/headerpathfilter.cpp     | 13 ++++---------
+ tests/unit/unittest/headerpathfilter-test.cpp |  6 ++++--
+ 2 files changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/src/plugins/cpptools/headerpathfilter.cpp b/src/plugins/cpptools/headerpathfilter.cpp
+index b656f8e136e..c7265e40444 100644
+--- a/src/plugins/cpptools/headerpathfilter.cpp
++++ b/src/plugins/cpptools/headerpathfilter.cpp
+@@ -71,15 +71,10 @@ void HeaderPathFilter::removeGccInternalIncludePaths()
+         return;
+ 
+     const Utils::FilePath gccInstallDir = projectPart.toolChainInstallDir;
+-    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath){
+-        const auto includePath = Utils::FilePath::fromString(headerPath.path);
+-        if (includePath.isChildOf(gccInstallDir)) {
+-           const QString remainingPath = headerPath.path.mid(gccInstallDir.toString().size());
+-           // MinGW ships the standard library headers in "<installdir>/include/c++".
+-           // Ensure that we do not remove include paths pointing there.
+-           return !remainingPath.startsWith("/include/c++");
+-        }
+-        return false;
++    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath) {
++        const auto filePath = Utils::FilePath::fromString(headerPath.path);
++        return filePath == gccInstallDir.pathAppended("include")
++               || filePath == gccInstallDir.pathAppended("include-fixed");
+     };
+ 
+     Utils::erase(builtInHeaderPaths, isGccInternalInclude);
+diff --git a/tests/unit/unittest/headerpathfilter-test.cpp b/tests/unit/unittest/headerpathfilter-test.cpp
+index da9d735f49d..b5589e8ec35 100644
+--- a/tests/unit/unittest/headerpathfilter-test.cpp
++++ b/tests/unit/unittest/headerpathfilter-test.cpp
+@@ -245,7 +245,8 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
+                             HasBuiltIn("/builtin_path")));
+ }
+ 
+-// Include paths below the installation dir should be removed as they confuse clang.
++// GCC-internal include paths like <installdir>/include and <installdir/include-next> might confuse
++// clang and should be filtered out. clang on the command line filters them out, too.
+ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
+ {
+     projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
+@@ -264,7 +265,8 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
+     ASSERT_THAT(filter.builtInHeaderPaths, ElementsAre(HasBuiltIn(CLANG_RESOURCE_DIR)));
+ }
+ 
+-// MinGW ships the standard library headers in "<installdir>/include/c++".
++// Some distributions ship the standard library headers in "<installdir>/include/c++" (MinGW)
++// or e.g. "<installdir>/include/g++-v8" (Gentoo).
+ // Ensure that we do not remove include paths pointing there.
+ TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
+ {
+-- 
+2.16.3
+
