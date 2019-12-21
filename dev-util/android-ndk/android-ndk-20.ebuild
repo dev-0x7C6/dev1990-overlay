@@ -20,7 +20,7 @@ DEPEND="app-arch/p7zip"
 RDEPEND=">=dev-util/android-sdk-update-manager-10
 	>=sys-devel/make-3.81
 	>=sys-apps/sandbox-2.18
-	sys-libs/ncurses:5/5[tinfo]"
+	sys-libs/ncurses[tinfo]"
 
 S="${WORKDIR}/${PN}-r${PV}"
 
