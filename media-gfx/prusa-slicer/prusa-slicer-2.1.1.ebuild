@@ -19,6 +19,7 @@ RDEPEND="!media-gfx/slic3r
 	>=dev-libs/boost-1.55[threads]
 	dev-cpp/eigen
 	dev-cpp/gtest
+	dev-libs/cereal
 	dev-cpp/tbb
 	dev-libs/expat
 	dev-libs/openssl
