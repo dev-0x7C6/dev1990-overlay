@@ -1,54 +1,58 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-: ${CMAKE_MAKEFILE_GENERATOR:=ninja}
-# (needed due to CMAKE_BUILD_TYPE != Gentoo)
-CMAKE_MIN_VERSION=3.7.0-r1
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python{2_7,3_{6,7}} )
+inherit cmake-utils llvm llvm.org multilib-minimal multiprocessing \
+	pax-utils python-single-r1 toolchain-funcs
 
-inherit cmake-utils eapi7-ver flag-o-matic llvm \
-	multilib-minimal multiprocessing pax-utils prefix python-single-r1 \
-	toolchain-funcs
-
-MY_P=cfe-${PV/_/}.src
-EXTRA_P=clang-tools-extra-${PV/_/}.src
-LLVM_P=llvm-${PV/_/}.src
-
+MANPAGE_P=llvm-9.0.0-manpages
 DESCRIPTION="C language family frontend for LLVM"
 HOMEPAGE="https://llvm.org/"
-SRC_URI="https://github.com/llvm/llvm-project/releases/download/llvmorg-${PV}/${MY_P}.tar.xz
-	https://github.com/llvm/llvm-project/releases/download/llvmorg-${PV}/${EXTRA_P}.tar.xz
-	test? ( https://github.com/llvm/llvm-project/releases/download/llvmorg-${PV}/${LLVM_P}.tar.xz )
-	!doc? ( https://dev.gentoo.org/~mgorny/dist/llvm/llvm-${PV}-manpages.tar.bz2 )"
+SRC_URI="
+	!doc? ( https://dev.gentoo.org/~mgorny/dist/llvm/${MANPAGE_P}.tar.bz2 )"
+LLVM_COMPONENTS=( clang clang-tools-extra )
+LLVM_TEST_COMPONENTS=(
+	llvm/lib/Testing/Support
+	llvm/utils/{lit,llvm-lit,unittest}
+)
+llvm.org_set_globals
+# We need extra level of indirection for CLANG_RESOURCE_DIR
+S=${WORKDIR}/x/y/clang
+
+PATCHES=(
+	# add Prefix include paths for Darwin
+	"${FILESDIR}"/keep_line_breaks_for_non_empty_lines_backported.patch
+)
 
 # Keep in sync with sys-devel/llvm
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM BPF Hexagon Lanai Mips MSP430
-	NVPTX PowerPC Sparc SystemZ WebAssembly X86 XCore )
+	NVPTX PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/?}
 
-LICENSE="UoI-NCSA"
+# MSVCSetupApi.h: MIT
+# sorttable.js: MIT
+
+LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="$(ver_cut 1)"
-KEYWORDS="amd64 ~arm ~arm64 ~ppc64 x86 ~amd64-fbsd ~amd64-linux ~ppc-macos ~x64-macos ~x86-macos"
+KEYWORDS="amd64 ~arm ~arm64 ppc64 x86 ~amd64-linux"
 IUSE="debug default-compiler-rt default-libcxx doc +static-analyzer
-	test xml z3 kernel_FreeBSD ${ALL_LLVM_TARGETS[*]}"
+	test xml kernel_FreeBSD ${ALL_LLVM_TARGETS[*]}"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}
+	|| ( ${ALL_LLVM_TARGETS[*]} )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	~sys-devel/llvm-${PV}:${SLOT}=[debug=,${LLVM_TARGET_USEDEPS// /,},${MULTILIB_USEDEP}]
-	static-analyzer? (
-		dev-lang/perl:*
-		z3? ( >=sci-mathematics/z3-4.7.1:0=[${MULTILIB_USEDEP}] )
-	)
+	static-analyzer? ( dev-lang/perl:* )
 	xml? ( dev-libs/libxml2:2=[${MULTILIB_USEDEP}] )
 	${PYTHON_DEPS}"
-# configparser-3.2 breaks the build (3.3 or none at all are fine)
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	doc? ( dev-python/sphinx )
 	xml? ( virtual/pkgconfig )
-	!!<dev-python/configparser-3.3.0.2
 	${PYTHON_DEPS}"
 RDEPEND="${RDEPEND}
 	!<sys-devel/llvm-4.0.0_rc:0
@@ -59,20 +63,8 @@ PDEPEND="
 	default-compiler-rt? ( =sys-libs/compiler-rt-${PV%_*}* )
 	default-libcxx? ( >=sys-libs/libcxx-${PV} )"
 
-REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	|| ( ${ALL_LLVM_TARGETS[*]} )"
-
-# We need extra level of indirection for CLANG_RESOURCE_DIR
-S=${WORKDIR}/x/y/${MY_P}
-
 # least intrusive of all
 CMAKE_BUILD_TYPE=RelWithDebInfo
-
-PATCHES=(
-	# add Prefix include paths for Darwin
-	"${FILESDIR}"/6.0.1/darwin_prefix-include-paths.patch
-	"${FILESDIR}"/keep_line_breaks_for_non_empty_lines_backported.patch
-)
 
 # Multilib notes:
 # 1. ABI_* flags control ABIs libclang* is built for only.
@@ -94,30 +86,14 @@ src_unpack() {
 	# create extra parent dir for CLANG_RESOURCE_DIR
 	mkdir -p x/y || die
 	cd x/y || die
-
-	einfo "Unpacking ${MY_P}.tar.xz ..."
-	tar -xf "${DISTDIR}/${MY_P}.tar.xz" || die
-	einfo "Unpacking ${EXTRA_P}.tar.xz ..."
-	tar -xf "${DISTDIR}/${EXTRA_P}.tar.xz" || die
-
-	mv "${EXTRA_P}" "${S}"/tools/extra || die
-	if use test; then
-		einfo "Unpacking parts of ${LLVM_P}.tar.xz ..."
-		tar -xf "${DISTDIR}/${LLVM_P}.tar.xz" \
-			"${LLVM_P}"/lib/Testing/Support \
-			"${LLVM_P}"/utils/{lit,llvm-lit,unittest} || die
-		mv "${LLVM_P}" "${WORKDIR}"/llvm || die
-	fi
+	llvm.org_src_unpack
+	mv clang-tools-extra clang/tools/extra || die
 
 	if ! use doc; then
-		einfo "Unpacking llvm-${PV}-manpages.tar.bz2 ..."
-		tar -xf "${DISTDIR}/llvm-${PV}-manpages.tar.bz2" || die
+		ebegin "Unpacking ${MANPAGE_P}.tar.bz2"
+		tar -xf "${DISTDIR}/${MANPAGE_P}.tar.bz2" || die
+		eend ${?}
 	fi
-}
-
-src_prepare() {
-	cmake-utils_src_prepare
-	eprefixify lib/Frontend/InitHeaderSearch.cpp
 }
 
 multilib_src_configure() {
@@ -125,8 +101,7 @@ multilib_src_configure() {
 	local clang_version=$(ver_cut 1-3 "${llvm_version}")
 
 	local mycmakeargs=(
-		# ensure that the correct llvm-config is used
-		-DLLVM_CONFIG="$(type -P "${CHOST}-llvm-config")"
+		-DLLVM_CMAKE_PATH="${EPREFIX}/usr/lib/llvm/${SLOT}/$(get_libdir)/cmake/llvm"
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/${SLOT}"
 		-DCMAKE_INSTALL_MANDIR="${EPREFIX}/usr/lib/llvm/${SLOT}/share/man"
 		# relative to bindir
@@ -151,11 +126,9 @@ multilib_src_configure() {
 
 		-DCLANG_ENABLE_ARCMT=$(usex static-analyzer)
 		-DCLANG_ENABLE_STATIC_ANALYZER=$(usex static-analyzer)
-		# z3 is not multilib-friendly
-		-DCLANG_ANALYZER_ENABLE_Z3_SOLVER=$(usex z3)
 	)
 	use test && mycmakeargs+=(
-		-DLLVM_MAIN_SRC_DIR="${WORKDIR}/llvm"
+		-DLLVM_MAIN_SRC_DIR="${WORKDIR}/x/y/llvm"
 		-DLLVM_LIT_ARGS="-vv;-j;${LIT_JOBS:-$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)")}"
 	)
 
@@ -172,9 +145,6 @@ multilib_src_configure() {
 			-DCLANG_INSTALL_SPHINX_HTML_DIR="${EPREFIX}/usr/share/doc/${PF}/html"
 			-DCLANG-TOOLS_INSTALL_SPHINX_HTML_DIR="${EPREFIX}/usr/share/doc/${PF}/tools-extra"
 			-DSPHINX_WARNINGS_AS_ERRORS=OFF
-		)
-		use z3 && mycmakeargs+=(
-			-DZ3_INCLUDE_DIR="${EPREFIX}/usr/include/z3"
 		)
 	else
 		mycmakeargs+=(
@@ -216,7 +186,8 @@ multilib_src_test() {
 	# respect TMPDIR!
 	local -x LIT_PRESERVES_TMP=1
 	cmake-utils_src_make check-clang
-	multilib_is_native_abi && cmake-utils_src_make check-clang-tools
+	multilib_is_native_abi &&
+		cmake-utils_src_make check-clang-tools check-clangd
 }
 
 src_install() {
@@ -227,9 +198,9 @@ src_install() {
 	multilib-minimal_src_install
 
 	# Move runtime headers to /usr/lib/clang, where they belong
-	mv "${ED%/}"/usr/include/clangrt "${ED%/}"/usr/lib/clang || die
+	mv "${ED}"/usr/include/clangrt "${ED}"/usr/lib/clang || die
 	# move (remaining) wrapped headers back
-	mv "${ED%/}"/usr/include "${ED%/}"/usr/lib/llvm/${SLOT}/include || die
+	mv "${ED}"/usr/include "${ED}"/usr/lib/llvm/${SLOT}/include || die
 
 	# Apply CHOST and version suffix to clang tools
 	# note: we use two version components here (vs 3 in runtime path)
@@ -249,7 +220,7 @@ src_install() {
 	# - clang, clang++, clang-cl, clang-cpp -> clang*-X
 	# also in CHOST variant
 	for i in "${clang_tools[@]:1}"; do
-		rm "${ED%/}/usr/lib/llvm/${SLOT}/bin/${i}" || die
+		rm "${ED}/usr/lib/llvm/${SLOT}/bin/${i}" || die
 		dosym "clang-${clang_version}" "/usr/lib/llvm/${SLOT}/bin/${i}-${clang_version}"
 		dosym "${i}-${clang_version}" "/usr/lib/llvm/${SLOT}/bin/${i}"
 	done
@@ -267,7 +238,7 @@ src_install() {
 
 	# Remove unnecessary headers on FreeBSD, bug #417171
 	if use kernel_FreeBSD; then
-		rm "${ED}"usr/lib/clang/${clang_full_version}/include/{std,float,iso,limits,tgmath,varargs}*.h || die
+		rm "${ED}"/usr/lib/clang/${clang_full_version}/include/{std,float,iso,limits,tgmath,varargs}*.h || die
 	fi
 }
 
@@ -276,21 +247,21 @@ multilib_src_install() {
 
 	# move headers to /usr/include for wrapping & ABI mismatch checks
 	# (also drop the version suffix from runtime headers)
-	rm -rf "${ED%/}"/usr/include || die
-	mv "${ED%/}"/usr/lib/llvm/${SLOT}/include "${ED%/}"/usr/include || die
-	mv "${ED%/}"/usr/lib/llvm/${SLOT}/$(get_libdir)/clang "${ED%/}"/usr/include/clangrt || die
+	rm -rf "${ED}"/usr/include || die
+	mv "${ED}"/usr/lib/llvm/${SLOT}/include "${ED}"/usr/include || die
+	mv "${ED}"/usr/lib/llvm/${SLOT}/$(get_libdir)/clang "${ED}"/usr/include/clangrt || die
 }
 
 multilib_src_install_all() {
 	python_fix_shebang "${ED}"
 	if use static-analyzer; then
-		python_optimize "${ED}"usr/lib/llvm/${SLOT}/share/scan-view
+		python_optimize "${ED}"/usr/lib/llvm/${SLOT}/share/scan-view
 	fi
 
 	# install pre-generated manpages
 	if ! use doc; then
 		insinto "/usr/lib/llvm/${SLOT}/share/man/man1"
-		doins "${WORKDIR}/x/y/llvm-${PV}-manpages/clang"/*.1
+		doins "${WORKDIR}/x/y/${MANPAGE_P}/clang"/*.1
 	fi
 
 	docompress "/usr/lib/llvm/${SLOT}/share/man"
@@ -301,20 +272,19 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
-	if [[ ${ROOT} == / && -f ${EPREFIX}/usr/share/eselect/modules/compiler-shadow.eselect ]] ; then
+	if [[ -z ${ROOT} && -f ${EPREFIX}/usr/share/eselect/modules/compiler-shadow.eselect ]] ; then
 		eselect compiler-shadow update all
 	fi
 
 	elog "You can find additional utility scripts in:"
 	elog "  ${EROOT}/usr/lib/llvm/${SLOT}/share/clang"
-	elog "To use these scripts, you will need Python 2.7. Some of them are vim"
-	elog "integration scripts (with instructions inside). The run-clang-tidy.py"
-	elog "scripts requires the following additional package:"
+	elog "Some of them are vim integration scripts (with instructions inside)."
+	elog "The run-clang-tidy.py script requires the following additional package:"
 	elog "  dev-python/pyyaml"
 }
 
 pkg_postrm() {
-	if [[ ${ROOT} == / && -f ${EPREFIX}/usr/share/eselect/modules/compiler-shadow.eselect ]] ; then
+	if [[ -z ${ROOT} && -f ${EPREFIX}/usr/share/eselect/modules/compiler-shadow.eselect ]] ; then
 		eselect compiler-shadow clean all
 	fi
 }
