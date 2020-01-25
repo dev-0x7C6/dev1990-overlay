@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-LLVM_MAX_SLOT=8
+LLVM_MAX_SLOT=9
 PLOCALES="cs da de fr ja pl ru sl uk zh-CN zh-TW"
 
 inherit llvm qmake-utils virtualx xdg
@@ -55,7 +55,7 @@ CDEPEND="
 	>=dev-qt/qtwidgets-${QT_PV}
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
-	clang? ( sys-devel/clang:8= )
+	clang? ( sys-devel/clang:${LLVM_MAX_SLOT}= )
 	designer? ( >=dev-qt/designer-${QT_PV} )
 	help? (
 		>=dev-qt/qthelp-${QT_PV}
