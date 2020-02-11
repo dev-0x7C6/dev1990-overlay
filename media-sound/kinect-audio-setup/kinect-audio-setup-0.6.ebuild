@@ -12,3 +12,13 @@ SRC_URI="https://github.com/dev-0x7C6/kinect-audio-setup/archive/v${PV}.tar.gz -
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="x86 amd64"
+
+IUSE="+udev +firmware"
+
+REQUIRED_USE="udev? ( firmware )"
+RDEPEND="firmware? ( media-sound/kinect-audio-firmware )"
+
+src_configure() {
+	local mycmakeargs=( -DUDEV=$(usex udev) )
+	cmake-utils_src_configure
+}
