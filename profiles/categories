@@ -11,4 +11,6 @@ games-action
 media-gfx
 media-libs
 media-sound
+sys-apps
+sys-devel
 www-client
