@@ -4,6 +4,7 @@ cross-armv7a-softfloat-linux-gnueabi
 cross-armv8a-hardfloat-linux-gnueabi
 cross-avr
 dev-embedded
+dev-lang
 dev-libs
 dev-qt
 dev-util
