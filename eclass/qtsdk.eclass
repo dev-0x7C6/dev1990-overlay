@@ -39,12 +39,18 @@ include_use_at_least() {
 	version_is_at_least ${1} && IUSE="${IUSE} ${2}"
 }
 
+include_use_deprecate_after() {
+	version_is_at_least ${1} || IUSE="${IUSE} ${2}"
+}
+
 CXX_STANDARDS=( detect 11 14 17 2a )
 
 include_use_at_least 5.5 3d
 include_use_at_least 5.6 serialbus
 include_use_at_least 5.6 webview
 include_use_at_least 5.7 +gamepad
+include_use_at_least 5.14 quick3d
+include_use_deprecate_after 5.13 xmlpatterns
 
 IUSE="
 	${IUSE}
@@ -117,6 +123,10 @@ qtsdk_skip_at_least_in() {
 	version_is_at_least ${1} && qtsdk_skip ${2} ${3}
 }
 
+qtsdk_skip_deprecated_after() {
+	version_is_at_least ${1} && QTSDK_CONFIGURE_FLAGS+=("-skip ${3}") || qtsdk_skip ${2} ${3}
+}
+
 qtsdk_nomake() {
 	local use_flag=${1}
 	local module=${2:-$use_flag}
@@ -161,6 +171,8 @@ qtsdk_populate_flags() {
 	qtsdk_skip wayland qtwayland
 	qtsdk_skip webchannel qtwebchannel
 	qtsdk_skip webengine qtwebengine
+	qtsdk_skip_deprecate_after 5.13 xmlpatterns qtxmlpatterns
+	qtsdk_skip_at_least_in 5.14 quick3d qtquick3d
 	qtsdk_skip_at_least_in 5.5 3d qt3d
 	qtsdk_skip_at_least_in 5.5 3d qtcanvas3d
 	qtsdk_skip_at_least_in 5.6 serialbus qtserialbus
