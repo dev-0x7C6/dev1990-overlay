@@ -3,6 +3,8 @@
 
 EAPI=6
 
+inherit eutils
+
 SRC_PN="NetworkManager-sstp"
 SRC_P="${SRC_PN}-${PV}"
 
@@ -13,28 +15,24 @@ SRC_URI="https://downloads.sourceforge.net/project/sstp-client/network-manager-s
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gtk"
 
-RDEPEND="
-	>=dev-libs/glib-2.32:2
-	net-misc/sstp-client
-	>=net-misc/networkmanager-1.1.0
+RDEPEND=">=dev-libs/dbus-glib-0.74
+	>=net-misc/sstp-client-1.0.12
+	>=net-misc/networkmanager-${PV}
 	net-dialup/ppp:=
-	gtk? (
-		>=x11-libs/gtk+-3.4:3
-		>=net-libs/libnma-1.1.0
-		app-crypt/libsecret
-	)
+	x11-libs/gtk+:3
+	gnome-base/gnome-keyring
+	gnome-base/libgnome-keyring
+	gnome-extra/nm-applet
 "
 
 DEPEND="${RDEPEND}
-	dev-util/gdbus-codegen
 	virtual/pkgconfig
 	sys-devel/gettext
 	dev-util/intltool
 "
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/${SRC_P}"
 
 src_configure() {
 	local PPPD_VERSION="$(echo $(best_version net-dialup/ppp) | sed -e 's:net-dialup/ppp-\(.*\):\1:' -e 's:-r.*$::')"
@@ -42,12 +40,11 @@ src_configure() {
 		--disable-more-warnings \
 		--disable-static \
 		--with-dist-version=Gentoo \
-		--with-pppd-plugin-dir="${EPREFIX}/usr/$(get_libdir)/pppd/${PPPD_VERSION}" \
-		$(use_with gtk gnome) \
-		--without-libnm-glib
+		--with-pppd-plugin-dir="${EPREFIX}/usr/$(get_libdir)/pppd/${PPPD_VERSION}"
 }
 
 src_install() {
 	default
-	find "${ED}" -type f -name '*.la' -delete || die
+	prune_libtool_files
 }
+
