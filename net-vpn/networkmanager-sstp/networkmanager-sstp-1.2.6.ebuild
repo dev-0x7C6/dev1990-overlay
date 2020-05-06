@@ -39,6 +39,9 @@ src_configure() {
 	econf \
 		--disable-more-warnings \
 		--disable-static \
+		--with-gnome \
+		--with-gtk \
+		--without-libnm-glib
 		--with-dist-version=Gentoo \
 		--with-pppd-plugin-dir="${EPREFIX}/usr/$(get_libdir)/pppd/${PPPD_VERSION}"
 }
