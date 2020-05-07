@@ -30,7 +30,21 @@ IUSE+=" ${QPA_PLATFORMS_DISABLED[@]/#/qpa_}"
 
 RDEPEND="
 	${RDEPEND}
-	qpa_xcb? ( x11-libs/libxcb:= )
+	qpa_xcb? (
+		>=x11-libs/libxcb-1.12:=[xkb]
+		>=x11-libs/libxkbcommon-0.5.0[X]
+		x11-libs/libICE
+		x11-libs/libSM
+		x11-libs/libX11
+		x11-libs/xcb-util-image
+		x11-libs/xcb-util-keysyms
+		x11-libs/xcb-util-renderutil
+		x11-libs/xcb-util-wm
+	)
+
+	media-libs/libpng:=
+	virtual/jpeg:=
+	virtual/opengl
 "
 
 DEPEND="${RDEPEND}"
