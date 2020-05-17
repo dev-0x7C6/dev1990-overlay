@@ -36,6 +36,8 @@ src_install() {
 	doexe gitlab-runner
 	dosym ../libexec/gitlab-runner/gitlab-runner /usr/bin/gitlab-runner
 
+	newconfd "${FILESDIR}"/gitlab-runner.confd gitlab-runner
+	newinitd "${FILESDIR}"/gitlab-runner.initd gitlab-runner
 	systemd_dounit "${FILESDIR}"/gitlab-runner.service
 	readme.gentoo_create_doc
 
