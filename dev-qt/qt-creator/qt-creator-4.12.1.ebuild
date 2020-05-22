@@ -1,8 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-LLVM_MAX_SLOT=9
+LLVM_MAX_SLOT=10
 PLOCALES="cs da de fr ja pl ru sl uk zh-CN zh-TW"
 
 inherit llvm qmake-utils virtualx xdg
@@ -24,17 +24,19 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-# TODO: unbundle sqlite and KSyntaxHighlighting
-
-QTC_PLUGINS=(android +autotest baremetal bazaar beautifier
+QTC_PLUGINS=(android +autotest baremetal beautifier boot2qt
 	'+clang:clangcodemodel|clangformat|clangpchmanager|clangrefactoring|clangtools' clearcase
-	cmake:cmakeprojectmanager cppcheck cvs +designer git glsl:glsleditor +help ios lsp:languageclient
-	mercurial modeling:modeleditor nim perforce perfprofiler python:pythoneditor qbs:qbsprojectmanager
-	+qmldesigner qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher subversion
-	valgrind winrt)
+	cmake:cmakeprojectmanager cppcheck ctfvisualizer cvs +designer git glsl:glsleditor +help ios
+	lsp:languageclient mcu:mcusupport mercurial modeling:modeleditor nim perforce perfprofiler python
+	qbs:qbsprojectmanager +qmldesigner qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal
+	silversearcher subversion valgrind webassembly winrt)
 IUSE="doc systemd test +webengine ${QTC_PLUGINS[@]%:*}"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="
+	boot2qt? ( remotelinux )
 	clang? ( test? ( qbs ) )
+	mcu? ( cmake )
+	python? ( lsp )
 	qnx? ( remotelinux )
 "
 
@@ -42,6 +44,8 @@ REQUIRED_USE="
 QT_PV="5.12.3:5"
 
 CDEPEND="
+	>=dev-cpp/yaml-cpp-0.6.2:=
+	>=dev-db/sqlite-3.28.0:3
 	>=dev-qt/qtconcurrent-${QT_PV}
 	>=dev-qt/qtcore-${QT_PV}
 	>=dev-qt/qtdeclarative-${QT_PV}[widgets]
@@ -55,7 +59,18 @@ CDEPEND="
 	>=dev-qt/qtwidgets-${QT_PV}
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
-	clang? ( sys-devel/clang:${LLVM_MAX_SLOT}= )
+	kde-frameworks/syntax-highlighting:5=
+	clang? (
+		|| (
+			( sys-devel/clang:10
+				dev-libs/libclangformat-ide:10 )
+			( sys-devel/clang:9
+				dev-libs/libclangformat-ide:9 )
+			( sys-devel/clang:8
+				dev-libs/libclangformat-ide:8 )
+		)
+		<sys-devel/clang-$((LLVM_MAX_SLOT + 1)):=
+	)
 	designer? ( >=dev-qt/designer-${QT_PV} )
 	help? (
 		>=dev-qt/qthelp-${QT_PV}
@@ -79,12 +94,12 @@ DEPEND="${CDEPEND}
 "
 RDEPEND="${CDEPEND}
 	sys-devel/gdb[client,python]
-	bazaar? ( dev-vcs/bzr )
 	cmake? ( dev-util/cmake )
 	cppcheck? ( dev-util/cppcheck )
 	cvs? ( dev-vcs/cvs )
 	git? ( dev-vcs/git )
 	mercurial? ( dev-vcs/mercurial )
+	qmldesigner? ( >=dev-qt/qtquicktimeline-${QT_PV} )
 	silversearcher? ( sys-apps/the_silver_searcher )
 	subversion? ( dev-vcs/subversion )
 	valgrind? ( dev-util/valgrind )
@@ -96,8 +111,24 @@ for x in ${PLOCALES}; do
 done
 unset x
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-4.12.0-dylib-fix.patch
+	"${FILESDIR}"/${PN}-4.12.0-libclangformat-ide.patch
+)
+
 pkg_setup() {
-	use clang && llvm_pkg_setup
+	if use clang; then
+		llvm_pkg_setup
+
+		# Find and export the clang slot that satisfies the dependency
+		local clang_slot=${LLVM_MAX_SLOT}
+		while [[ ! -x "$(get_llvm_prefix ${clang_slot})/bin/clang" ]] ||
+			[[ ! -e  "$(get_llvm_prefix ${clang_slot})/$(get_libdir)/libclangFormatIDE.a" ]]; do
+			# No need for lower-bounds if clang/libclangformat-ide deps are satisfied
+			clang_slot=$((clang_slot - 1))
+		done
+		export CLANG_PREFIX="$(get_llvm_prefix ${clang_slot})"
+	fi
 }
 
 src_prepare() {
@@ -129,7 +160,7 @@ src_prepare() {
 	fi
 	if ! use perfprofiler; then
 		rm -rf src/tools/perfparser || die
-		if ! use qmlprofiler; then
+		if ! use ctfvisualizer && ! use qmlprofiler; then
 			sed -i -e '/tracing/d' src/libs/libs.pro tests/auto/auto.pro || die
 		fi
 	fi
@@ -166,6 +197,20 @@ src_prepare() {
 	done
 	sed -i -e "/^LANGUAGES\s*=/s:=.*:=${languages}:" share/qtcreator/translations/translations.pro || die
 
+	# remove bundled sqlite
+	rm -rf src/libs/3rdparty/sqlite || die
+	sed -i -e '/^include(..\/3rdparty\/sqlite\/sqlite.pri)/d' src/libs/sqlite/sqlite-lib.pri || die
+	sed -i -e '/^LIBS += /s/$/ -lsqlite3/' \
+		src/tools/clangbackend/clangbackend.pro \
+		src/tools/clangrefactoringbackend/clangrefactoringbackend.pro \
+		src/tools/clangpchmanagerbackend/clangpchmanagerbackend.pro || die
+
+	# remove bundled syntax-highlighting
+	rm -rf src/libs/3rdparty/syntax-highlighting || die
+
+	# remove bundled yaml-cpp
+	rm -rf src/libs/3rdparty/yaml-cpp || die
+
 	# remove bundled qbs
 	rm -rf src/shared/qbs || die
 }
@@ -173,7 +218,9 @@ src_prepare() {
 src_configure() {
 	eqmake5 IDE_LIBRARY_BASENAME="$(get_libdir)" \
 		IDE_PACKAGE_MODE=1 \
-		$(use clang && echo LLVM_INSTALL_DIR="$(get_llvm_prefix ${LLVM_MAX_SLOT})") \
+		KSYNTAXHIGHLIGHTING_LIB_DIR="${EPREFIX}/usr/$(get_libdir)" \
+		KSYNTAXHIGHLIGHTING_INCLUDE_DIR="${EPREFIX}/usr/include/KF5/KSyntaxHighlighting" \
+		$(use clang && echo LLVM_INSTALL_DIR="${CLANG_PREFIX}") \
 		$(use qbs && echo QBS_INSTALL_DIR="${EPREFIX}/usr") \
 		CONFIG+=qbs_disable_rpath \
 		CONFIG+=qbs_enable_project_file_updates \
