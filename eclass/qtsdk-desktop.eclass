@@ -59,7 +59,9 @@ qtsdk-desktop_src_configure() {
 	qtsdk_add_flag -qt-zlib
 	qtsdk_add_flag -system-libjpeg
 	qtsdk_add_flag -system-libpng
-	qtsdk_add_flag -system-xcb
+
+	# Seems that 5.15.0 removes -system-xcb switch
+	version_is_at_least 5.15.0 || qtsdk_add_flag -system-xcb
 
 	# BUG: Invalid value given for boolean command line option 'xkbcommon'.
 
