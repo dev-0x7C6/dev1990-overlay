@@ -24,6 +24,8 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
+# TODO: unbundle sqlite
+
 QTC_PLUGINS=(android +autotest baremetal beautifier boot2qt
 	'+clang:clangcodemodel|clangformat|clangpchmanager|clangrefactoring|clangtools' clearcase
 	cmake:cmakeprojectmanager cppcheck ctfvisualizer cvs +designer git glsl:glsleditor +help ios
@@ -43,6 +45,11 @@ REQUIRED_USE="
 # minimum Qt version required
 QT_PV="5.12.3:5"
 
+BDEPEND="
+	>=dev-qt/linguist-tools-${QT_PV}
+	virtual/pkgconfig
+	doc? ( >=dev-qt/qdoc-${QT_PV} )
+"
 CDEPEND="
 	>=dev-cpp/yaml-cpp-0.6.2:=
 	>=dev-db/sqlite-3.28.0:3
@@ -59,15 +66,13 @@ CDEPEND="
 	>=dev-qt/qtwidgets-${QT_PV}
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
-	kde-frameworks/syntax-highlighting:5=
+	kde-frameworks/syntax-highlighting:5
 	clang? (
 		|| (
 			( sys-devel/clang:10
 				dev-libs/libclangformat-ide:10 )
 			( sys-devel/clang:9
 				dev-libs/libclangformat-ide:9 )
-			( sys-devel/clang:8
-				dev-libs/libclangformat-ide:8 )
 		)
 		<sys-devel/clang-$((LLVM_MAX_SLOT + 1)):=
 	)
@@ -82,9 +87,6 @@ CDEPEND="
 	systemd? ( sys-apps/systemd:= )
 "
 DEPEND="${CDEPEND}
-	>=dev-qt/linguist-tools-${QT_PV}
-	virtual/pkgconfig
-	doc? ( >=dev-qt/qdoc-${QT_PV} )
 	test? (
 		>=dev-qt/qtdeclarative-${QT_PV}[localstorage]
 		>=dev-qt/qtquickcontrols2-${QT_PV}
@@ -116,19 +118,13 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.12.0-libclangformat-ide.patch
 )
 
-pkg_setup() {
-	if use clang; then
-		llvm_pkg_setup
+llvm_check_deps() {
+	has_version -d "sys-devel/clang:${LLVM_SLOT}" && \
+		has_version -d "dev-libs/libclangformat-ide:${LLVM_SLOT}"
+}
 
-		# Find and export the clang slot that satisfies the dependency
-		local clang_slot=${LLVM_MAX_SLOT}
-		while [[ ! -x "$(get_llvm_prefix ${clang_slot})/bin/clang" ]] ||
-			[[ ! -e  "$(get_llvm_prefix ${clang_slot})/$(get_libdir)/libclangFormatIDE.a" ]]; do
-			# No need for lower-bounds if clang/libclangformat-ide deps are satisfied
-			clang_slot=$((clang_slot - 1))
-		done
-		export CLANG_PREFIX="$(get_llvm_prefix ${clang_slot})"
-	fi
+pkg_setup() {
+	use clang && llvm_pkg_setup
 }
 
 src_prepare() {
@@ -159,7 +155,7 @@ src_prepare() {
 		sed -i -e '/modelinglib/d' src/libs/libs.pro || die
 	fi
 	if ! use perfprofiler; then
-		rm -rf src/tools/perfparser || die
+		rm -r src/tools/perfparser || die
 		if ! use ctfvisualizer && ! use qmlprofiler; then
 			sed -i -e '/tracing/d' src/libs/libs.pro tests/auto/auto.pro || die
 		fi
@@ -206,13 +202,13 @@ src_prepare() {
 		src/tools/clangpchmanagerbackend/clangpchmanagerbackend.pro || die
 
 	# remove bundled syntax-highlighting
-	rm -rf src/libs/3rdparty/syntax-highlighting || die
+	rm -r src/libs/3rdparty/syntax-highlighting || die
 
 	# remove bundled yaml-cpp
-	rm -rf src/libs/3rdparty/yaml-cpp || die
+	rm -r src/libs/3rdparty/yaml-cpp || die
 
 	# remove bundled qbs
-	rm -rf src/shared/qbs || die
+	rm -r src/shared/qbs || die
 }
 
 src_configure() {
@@ -220,7 +216,7 @@ src_configure() {
 		IDE_PACKAGE_MODE=1 \
 		KSYNTAXHIGHLIGHTING_LIB_DIR="${EPREFIX}/usr/$(get_libdir)" \
 		KSYNTAXHIGHLIGHTING_INCLUDE_DIR="${EPREFIX}/usr/include/KF5/KSyntaxHighlighting" \
-		$(use clang && echo LLVM_INSTALL_DIR="${CLANG_PREFIX}") \
+		$(use clang && echo LLVM_INSTALL_DIR="$(get_llvm_prefix ${LLVM_MAX_SLOT})") \
 		$(use qbs && echo QBS_INSTALL_DIR="${EPREFIX}/usr") \
 		CONFIG+=qbs_disable_rpath \
 		CONFIG+=qbs_enable_project_file_updates \
