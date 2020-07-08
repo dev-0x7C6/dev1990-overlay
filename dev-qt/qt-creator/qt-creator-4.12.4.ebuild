@@ -52,7 +52,6 @@ BDEPEND="
 "
 CDEPEND="
 	>=dev-cpp/yaml-cpp-0.6.2:=
-	>=dev-db/sqlite-3.28.0:3
 	>=dev-qt/qtconcurrent-${QT_PV}
 	>=dev-qt/qtcore-${QT_PV}
 	>=dev-qt/qtdeclarative-${QT_PV}[widgets]
@@ -192,14 +191,6 @@ src_prepare() {
 		use l10n_${lang} && languages+=" ${lang/-/_}"
 	done
 	sed -i -e "/^LANGUAGES\s*=/s:=.*:=${languages}:" share/qtcreator/translations/translations.pro || die
-
-	# remove bundled sqlite
-	rm -rf src/libs/3rdparty/sqlite || die
-	sed -i -e '/^include(..\/3rdparty\/sqlite\/sqlite.pri)/d' src/libs/sqlite/sqlite-lib.pri || die
-	sed -i -e '/^LIBS += /s/$/ -lsqlite3/' \
-		src/tools/clangbackend/clangbackend.pro \
-		src/tools/clangrefactoringbackend/clangrefactoringbackend.pro \
-		src/tools/clangpchmanagerbackend/clangpchmanagerbackend.pro || die
 
 	# remove bundled syntax-highlighting
 	rm -r src/libs/3rdparty/syntax-highlighting || die
