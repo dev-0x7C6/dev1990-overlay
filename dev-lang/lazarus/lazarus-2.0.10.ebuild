@@ -13,7 +13,7 @@ HOMEPAGE="https://www.lazarus-ide.org/"
 SRC_URI="
 	python? ( https://github.com/Alexey-T/Python-for-Lazarus/archive/${PYTHON_HASH}.tar.gz ->\
 		${P}-python.tar.gz )
-	https://sourceforge.net/projects/${PN}/files/Lazarus%20Zip%20_%20GZip/Lazarus%20${PV}/${P}.tar.gz"
+	https://sourceforge.net/projects/${PN}/files/Lazarus%20Zip%20_%20GZip/Lazarus%20${PV}/${P}-2.tar.gz"
 
 LICENSE="GPL-2 LGPL-2.1-with-linking-exception"
 SLOT="0" # Note: Slotting Lazarus needs slotting fpc, see DEPEND.
