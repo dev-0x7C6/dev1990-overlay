@@ -26,7 +26,7 @@ RDEPEND="!media-gfx/slic3r
 	dev-libs/openssl
 	media-libs/glew
 	net-misc/curl
-	sci-libs/nlopt
+	sci-libs/nlopt[cxx]
 	x11-libs/wxGTK:3.0-gtk3
 "
 
@@ -47,6 +47,10 @@ src_configure() {
 	)
 	cmake-utils_src_configure
 }
+
+PATCHES=(
+	"${FILESDIR}/0001-Raised-cmake-minimal-version-policy-update-for-GLVND.patch"
+)
 
 src_install() {
 	cmake-utils_src_install
