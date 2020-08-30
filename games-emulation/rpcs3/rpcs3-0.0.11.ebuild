@@ -32,7 +32,7 @@ RDEPEND="dev-qt/qtcore:5=
 	media-libs/glew:0=
 	virtual/libudev:=
 	sys-libs/zlib:=
-	llvm? ( sys-devel/llvm )
+	llvm? ( sys-devel/llvm:11= )
 	alsa? ( media-libs/alsa-lib:= )
 	faudio? ( app-emulation/faudio:= media-libs/libsdl2:= )
 	pulseaudio? ( media-sound/pulseaudio:= )
