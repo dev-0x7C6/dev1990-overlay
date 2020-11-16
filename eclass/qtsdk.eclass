@@ -123,6 +123,11 @@ qtsdk_skip_at_least_in() {
 	version_is_at_least ${1} && qtsdk_skip ${2} ${3}
 }
 
+qtsdk_skip_before_version() {
+	version_is_at_least ${1} || qtsdk_skip ${2} ${3}
+}
+
+
 qtsdk_skip_deprecated_after() {
 	version_is_at_least ${1} && QTSDK_CONFIGURE_FLAGS+=("-skip ${3}") || qtsdk_skip ${2} ${3}
 }
@@ -163,7 +168,7 @@ qtsdk_populate_flags() {
 	qtsdk_skip multimedia qtmultimedia
 	qtsdk_skip quick qtquickcontrols
 	qtsdk_skip quick2 qtquickcontrols2
-	qtsdk_skip script qtscript
+	qtsdk_skip_before_version 6.0 script qtscript
 	qtsdk_skip sensors qtsensors
 	qtsdk_skip serialport qtserialport
 	qtsdk_skip svg qtsvg
@@ -171,7 +176,7 @@ qtsdk_populate_flags() {
 	qtsdk_skip wayland qtwayland
 	qtsdk_skip webchannel qtwebchannel
 	qtsdk_skip webengine qtwebengine
-	qtsdk_skip_deprecate_after 5.13 xmlpatterns qtxmlpatterns
+	qtsdk_skip_deprecated_after 5.13 xmlpatterns qtxmlpatterns
 	qtsdk_skip_at_least_in 5.14 quick3d qtquick3d
 	qtsdk_skip_at_least_in 5.5 3d qt3d
 	qtsdk_skip_at_least_in 5.5 3d qtcanvas3d
