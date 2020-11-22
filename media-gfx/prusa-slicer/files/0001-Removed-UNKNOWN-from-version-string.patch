@@ -1,0 +1,29 @@
+From bdd60f392b5b3e7bad864dcf5ee37264d9e31d0a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bart=C5=82omiej=20Burdukiewicz?=
+ <bartlomiej.burdukiewicz@gmail.com>
+Date: Sun, 22 Nov 2020 22:39:34 +0100
+Subject: [PATCH] Removed +UNKNOWN from version string.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Bartłomiej Burdukiewicz <bartlomiej.burdukiewicz@gmail.com>
+---
+ version.inc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/version.inc b/version.inc
+index b34ee729d..fd5c6fab7 100644
+--- a/version.inc
++++ b/version.inc
+@@ -4,6 +4,6 @@
+ set(SLIC3R_APP_NAME "PrusaSlicer")
+ set(SLIC3R_APP_KEY "PrusaSlicer")
+ set(SLIC3R_VERSION "2.3.0-alpha4")
+-set(SLIC3R_BUILD_ID "PrusaSlicer-${SLIC3R_VERSION}+UNKNOWN")
++set(SLIC3R_BUILD_ID "PrusaSlicer-${SLIC3R_VERSION}")
+ set(SLIC3R_RC_VERSION "2,3,0,0")
+ set(SLIC3R_RC_VERSION_DOTS "2.3.0.0")
+-- 
+2.29.2
+
