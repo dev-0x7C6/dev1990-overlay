@@ -34,6 +34,11 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/PrusaSlicer-version_${PVE}"
 
+src_prepare() {
+	sed -i -e 's:+UNKNOWN::g' ${S}/version.inc
+	cmake-utils_src_prepare
+}
+
 src_configure() {
 	local mycmakeargs=(
 		-DSLIC3R_WX_STABLE=1
