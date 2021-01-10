@@ -34,6 +34,8 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/PrusaSlicer-version_${PVE}"
 
+PATCHES=( "${FILESDIR}/0001-Fixed-gtk-undefined-reference.patch" )
+
 src_prepare() {
 	sed -i -e 's:+UNKNOWN:+gentoo:g' ${S}/version.inc
 	cmake-utils_src_prepare
