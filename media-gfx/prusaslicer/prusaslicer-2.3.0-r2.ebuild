@@ -1,13 +1,14 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+WX_GTK_VER="3.0-gtk3"
 
-inherit desktop eutils cmake-utils
+inherit cmake desktop wxwidgets xdg-utils
 
 PVE=${PV/_/-}
 
-DESCRIPTION="G-code generator for 3D printers (RepRap, Makerbot, Ultimaker etc.)"
+DESCRIPTION="A mesh slicer to generate G-code for fused-filament-fabrication (3D printers)"
 HOMEPAGE="https://github.com/prusa3d/PrusaSlicer"
 SRC_URI="https://github.com/prusa3d/PrusaSlicer/archive/version_${PVE}.tar.gz -> ${P}.tar.gz"
 
@@ -27,7 +28,7 @@ RDEPEND="!media-gfx/slic3r
 	media-libs/glew
 	net-misc/curl
 	sci-libs/nlopt[cxx]
-	x11-libs/wxGTK:3.0-gtk3
+	x11-libs/wxGTK:${WX_GTK_VER}[X]
 "
 
 DEPEND="${RDEPEND}"
@@ -36,10 +37,13 @@ S="${WORKDIR}/PrusaSlicer-version_${PVE}"
 
 src_prepare() {
 	sed -i -e 's:+UNKNOWN:+gentoo:g' ${S}/version.inc
-	cmake-utils_src_prepare
+	setup-wxwidgets
+	cmake_src_prepare
 }
 
 src_configure() {
+	CMAKE_BUILD_TYPE=Release
+
 	local mycmakeargs=(
 		-DSLIC3R_WX_STABLE=1
 		-DSLIC3R_GUI=1
@@ -50,16 +54,19 @@ src_configure() {
 		-DSLIC3R_BUILD_SANDBOXES=0
 		-DSLIC3R_BUILD_TESTS=0
 	)
-	cmake-utils_src_configure
+
+	cmake_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
-	make_desktop_entry prusa-slicer \
-		"PrusaSlicer"\
-		"/usr/share/PrusaSlicer/icons/PrusaSlicer_192px.png" \
-		"Graphics;3DGraphics;Engineering;Development"
+	doicon resources/icons/PrusaSlicer.png || die
+	domenu "${FILESDIR}/PrusaGcodeviewer.desktop" || die
+	domenu "${FILESDIR}/PrusaSlicer.desktop" || die
+}
 
-	dosym ${PN} /usr/bin/prusa-gcodeviewer
+pkg_postinst() {
+	xdg_mimeinfo_database_update
+	xdg_desktop_database_update
 }
