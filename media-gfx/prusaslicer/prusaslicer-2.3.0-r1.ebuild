@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 
 RDEPEND="!media-gfx/slic3r
 	>=dev-libs/boost-1.73[threads]
-	>=media-gfx/openvdb-5.0[-abi4-compat]
+	>=media-gfx/openvdb-5.0.0
 	>=sci-mathematics/cgal-4.14
 	dev-cpp/eigen
 	dev-cpp/tbb
