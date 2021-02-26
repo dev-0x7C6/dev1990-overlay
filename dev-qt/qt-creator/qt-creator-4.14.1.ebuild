@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-LLVM_MAX_SLOT=10
+LLVM_MAX_SLOT=11
 PLOCALES="cs da de fr ja pl ru sl uk zh-CN zh-TW"
 
 inherit llvm qmake-utils virtualx xdg
@@ -67,12 +67,6 @@ CDEPEND="
 	>=dev-qt/qtxml-${QT_PV}
 	kde-frameworks/syntax-highlighting:5
 	clang? (
-		|| (
-			( sys-devel/clang:10
-				dev-libs/libclangformat-ide:10 )
-			( sys-devel/clang:9
-				dev-libs/libclangformat-ide:9 )
-		)
 		<sys-devel/clang-$((LLVM_MAX_SLOT + 1)):=
 	)
 	designer? ( >=dev-qt/designer-${QT_PV} )
@@ -112,14 +106,8 @@ for x in ${PLOCALES}; do
 done
 unset x
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-4.12.0-dylib-fix.patch
-	"${FILESDIR}"/${PN}-4.12.0-libclangformat-ide.patch
-)
-
 llvm_check_deps() {
-	has_version -d "sys-devel/clang:${LLVM_SLOT}" && \
-		has_version -d "dev-libs/libclangformat-ide:${LLVM_SLOT}"
+	has_version -d "sys-devel/clang:${LLVM_SLOT}"
 }
 
 pkg_setup() {
