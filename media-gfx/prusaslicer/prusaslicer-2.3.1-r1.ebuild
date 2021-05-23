@@ -60,6 +60,7 @@ S="${WORKDIR}/PrusaSlicer-version_${PVE}"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-miniz-zip-header.patch"
+	"${FILESDIR}/0001-Optimizer-added-missing-optional-header.patch"
 )
 
 src_prepare() {
