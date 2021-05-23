@@ -3,4 +3,6 @@
 
 EAPI=7
 
+PATCHES=( "${FILESDIR}/0001-qglobal.h-added-missing-limits-header.patch" )
+
 inherit qtsdk-desktop-gcc
