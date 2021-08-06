@@ -9,7 +9,7 @@ EGO_PN="gitlab.com/gitlab-org/gitlab-runner"
 
 DESCRIPTION="GitLab Runner"
 HOMEPAGE="https://gitlab.com/gitlab-org/gitlab-runner"
-SRC_URI="https://${EGO_PN}/repository/v${PV}/archive.tar.bz2 -> ${P}.tar.bz2"
+SRC_URI="https://gitlab.com/gitlab-org/gitlab-runner/-/archive/v${PV}/gitlab-runner-v${PV}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
