@@ -17,13 +17,11 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
 RDEPEND=">=dev-libs/dbus-glib-0.74
-	>=net-misc/sstp-client-1.0.12
 	>=net-misc/networkmanager-${PV}
+	>=net-misc/sstp-client-1.0.12
 	net-dialup/ppp:=
+	net-libs/libnma
 	x11-libs/gtk+:3
-	gnome-base/gnome-keyring
-	gnome-base/libgnome-keyring
-	gnome-extra/nm-applet
 "
 
 DEPEND="${RDEPEND}
