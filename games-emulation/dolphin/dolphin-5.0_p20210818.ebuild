@@ -72,8 +72,6 @@ BDEPEND="
 RDEPEND="${RDEPEND}
 	vulkan? ( media-libs/vulkan-loader )"
 
-PATCHES=("${FILESDIR}"/${P}-musl.patch)
-
 # [directory]=license
 declare -A KEEP_BUNDLED=(
 	[Bochs_disasm]=LGPL-2.1+
