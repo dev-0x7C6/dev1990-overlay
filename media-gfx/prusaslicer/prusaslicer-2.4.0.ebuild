@@ -26,7 +26,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	dev-cpp/eigen:3
 	dev-cpp/tbb
-	>=dev-libs/boost-1.73.0:=[nls,threads]
+	>=dev-libs/boost-1.73.0:=[nls]
 	dev-libs/cereal
 	dev-libs/expat
 	dev-libs/gmp:=
@@ -57,11 +57,6 @@ DEPEND="${RDEPEND}
 "
 
 S="${WORKDIR}/PrusaSlicer-version_${PVE}"
-
-PATCHES=(
-	"${FILESDIR}/${PN}-miniz-zip-header.patch"
-	"${FILESDIR}/0001-Optimizer-added-missing-optional-header.patch"
-)
 
 src_prepare() {
 	sed -i -e 's:+UNKNOWN:+gentoo:g' ${S}/version.inc
