@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils git-r3 toolchain-funcs
+inherit cmake git-r3 toolchain-funcs
 
 DESCRIPTION="Open source PlayStation 3 emulator"
 HOMEPAGE="https://rpcs3.net/"
@@ -70,5 +70,5 @@ src_configure() {
 		-DUSE_NATIVE_INSTRUCTIONS=OFF
 		-DBUILD_SHARED_LIBS=OFF
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

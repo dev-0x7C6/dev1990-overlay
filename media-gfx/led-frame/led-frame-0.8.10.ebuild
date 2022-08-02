@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Abientled for your monitor"
 HOMEPAGE="https://github.com/dev-0x7C6/led-frame"
@@ -43,5 +43,5 @@ src_configure() {
 		-DTESTS=$(usex tests)
 		-DBENCHMARKS=$(usex benchmarks)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit vcs-snapshot cmake-multilib
+inherit vcs-snapshot cmake
 
 DESCRIPTION="Google's microbenchmark support library for C++"
 HOMEPAGE="https://github.com/google/benchmark"
@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE=""
 
-DEPEND="${DEPEND}"
+DEPEND="${DEPEND} dev-cpp/gtest"
 RDEPEND="${DEPEND}"
 
 multilib_src_configure() {
@@ -23,7 +23,7 @@ multilib_src_configure() {
 		-DLIB_INSTALL_DIR=$(get_libdir)
 		-DBENCHMARK_ENABLE_TESTING=OFF
 	)
-	cmake-utils_src_configure mycmakeargs
+	cmake_src_configure mycmakeargs
 }
 
 multilib_src_install_all() {

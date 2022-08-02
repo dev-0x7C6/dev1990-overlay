@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Tools to enable audio input from the Microsoft Kinect sensor device"
 HOMEPAGE="https://github.com/dev-0x7C6/kinect-audio-setup"
@@ -20,5 +20,5 @@ RDEPEND="firmware? ( media-sound/kinect-audio-firmware )"
 
 src_configure() {
 	local mycmakeargs=( -DUDEV=$(usex udev) )
-	cmake-utils_src_configure
+	cmake_src_configure
 }

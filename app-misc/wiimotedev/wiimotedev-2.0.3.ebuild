@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Wiiremote service and input/ouput emulator"
 HOMEPAGE="https://github.com/dev-0x7C6/wiimotedev"
@@ -38,7 +38,7 @@ src_configure() {
 		-DBUILD_IO=$(usex io)
 		-DBUILD_MANAGER=$(usex manager)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 pkg_postinst() {

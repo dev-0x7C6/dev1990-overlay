@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils git-r3
+inherit cmake git-r3
 
 DESCRIPTION="Flattened Device Tree Viewer written in Qt"
 HOMEPAGE="https://github.com/dev-0x7C6/fdt-viewer"

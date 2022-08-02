@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils git-r3
+inherit cmake git-r3
 
 DESCRIPTION="Led Frame a high performance ambilight software-based solution"
 HOMEPAGE="https://github.com/dev-0x7C6/led-frame"
@@ -57,5 +57,5 @@ src_configure() {
 		-DTESTS=$(usex tests)
 		-DBENCHMARKS=$(usex benchmarks)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

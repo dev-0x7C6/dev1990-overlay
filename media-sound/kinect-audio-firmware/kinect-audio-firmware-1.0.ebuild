@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Extracted firmware for Microsoft Kinnect from SDK. Should be used under terms of Kinnect SDK terms."
 HOMEPAGE="https://github.com/dev-0x7C6/kinect-audio-firmware"
