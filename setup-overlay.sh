@@ -3,8 +3,8 @@
 # A script for setting up Portage to use a given github overlay
 # for us lazy people.
 
-REPO_NAME="metahax"
-AUTHOR="metafarion"
+REPO_NAME="mdev1990-overlay"
+AUTHOR="dev-0x7C6"
 REPO_URL="https://github.com/${AUTHOR}/${REPO_NAME}"
 OVERLAY_DIR="/var/db/repos/${REPO_NAME}"
 
