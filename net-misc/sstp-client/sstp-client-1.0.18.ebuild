@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-inherit autotools linux-info user
+inherit autotools linux-info
 
 DESCRIPTION="A client implementation of Secure Socket Tunneling Protocol (SSTP)"
 HOMEPAGE="http://sstp-client.sourceforge.net/"
