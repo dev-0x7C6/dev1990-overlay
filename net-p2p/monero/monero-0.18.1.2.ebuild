@@ -39,6 +39,7 @@ BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-0.18.1.0-unbundle-dependencies.patch"
+	"${FILESDIR}/${PN}-0.18.1.2-missing-includes.patch"
 )
 
 src_configure() {
