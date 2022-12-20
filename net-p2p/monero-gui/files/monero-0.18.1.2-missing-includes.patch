@@ -1,0 +1,35 @@
+From 96677fffcd436c5c108718b85419c5dbf5da9df2 Mon Sep 17 00:00:00 2001
+From: selsta <selsta@sent.at>
+Date: Sun, 18 Dec 2022 18:30:08 +0100
+Subject: [PATCH] common: add missing includes
+
+---
+ src/common/dns_utils.cpp | 2 ++
+ src/common/threadpool.h  | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/src/common/dns_utils.cpp b/src/common/dns_utils.cpp
+index e00421f873e..da144aca403 100644
+--- a/monero/src/common/dns_utils.cpp
++++ b/monero/src/common/dns_utils.cpp
+@@ -30,6 +30,8 @@
+ // check local first (in the event of static or in-source compilation of libunbound)
+ #include "unbound.h"
+ 
++#include <deque>
++#include <set>
+ #include <stdlib.h>
+ #include "include_base_utils.h"
+ #include "common/threadpool.h"
+diff --git a/src/common/threadpool.h b/src/common/threadpool.h
+index 53421e18b30..fcf8ca9455a 100644
+--- a/monero/src/common/threadpool.h
++++ b/monero/src/common/threadpool.h
+@@ -31,6 +31,7 @@
+ #include <boost/thread/mutex.hpp>
+ #include <boost/thread/thread.hpp>
+ #include <cstddef>
++#include <deque>
+ #include <functional>
+ #include <utility>
+ #include <vector>
