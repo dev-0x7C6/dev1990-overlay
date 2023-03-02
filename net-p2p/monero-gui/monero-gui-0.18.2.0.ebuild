@@ -44,11 +44,6 @@ RDEPEND="${COMMON_DEPEND}
 	dev-qt/qtgraphicaleffects:5
 	media-fonts/fontawesome"
 
-PATCHES=(
-        "${FILESDIR}/monero-0.18.1.2-missing-includes.patch"
-)
-
-
 src_configure () {
 	# FIXME?
 	cd src/zxcvbn-c
