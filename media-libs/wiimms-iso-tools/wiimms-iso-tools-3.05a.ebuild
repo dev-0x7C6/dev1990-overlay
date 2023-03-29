@@ -1,15 +1,12 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2023 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
 DESCRIPTION="Wiimms ISO Tools is a set of command line tools to manipulate Wii and GameCube ISO images and WBFS containers."
 HOMEPAGE="http://wit.wiimm.de/"
 
-inherit subversion
-
-ESVN_REPO_URI="http://opensvn.wiimm.de/wii/trunk/wiimms-iso-tools/"
-ESVN_PROJECT="wiimms-iso-tools"
+SRC_URI="https://download.wiimm.de/source/wiimms-iso-tools/wiimms-iso-tools.source-3.05a.zip"
 
 LICENSE="GPLv2"
 SLOT="0"
@@ -19,15 +16,9 @@ IUSE=""
 DEPEND=""
 RDEPEND="${DEPEND}"
 
-#src_compile() {
-#	export INSTALL_PATH=/usr
-#	emake
-#}
+S="${WORKDIR}/wiimms-iso-tools.source-3.05a"
 
-src_configure() {
-	./setup.sh
+src_compile() {
+	emake DISTRIB_PATH="${D}/usr" INSTALL_PATH="${D}/usr" SHARE_PATH="${D}/usr/share"
 }
 
-#src_configure() {
-#	econf --prefix=/usr
-#}
