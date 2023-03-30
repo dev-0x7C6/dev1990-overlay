@@ -1,14 +1,15 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
 CHECKREQS_DISK_BUILD="6G"
 inherit check-reqs
 
 DESCRIPTION="Open Handset Alliance's Android NDK (Native Dev Kit)"
 HOMEPAGE="http://developer.android.com/sdk/ndk/"
-SRC_URI="https://dl.google.com/android/repository/${PN}-r${PV}-linux-x86_64.zip"
+
+SRC_URI="https://dl.google.com/android/repository/${PN}-r${PV}-linux.zip"
 
 LICENSE="android"
 SLOT="0"
@@ -18,6 +19,7 @@ RESTRICT="mirror strip installsources test"
 
 DEPEND="app-arch/p7zip"
 RDEPEND=">=dev-util/android-sdk-update-manager-10
+	virtual/libcrypt:=
 	>=sys-devel/make-3.81
 	>=sys-apps/sandbox-2.18
 	sys-libs/ncurses[tinfo]"
@@ -51,7 +53,7 @@ src_install() {
 
 	dodir "/${ANDROID_NDK_DIR}/out"
 	fowners -R root:android "/${ANDROID_NDK_DIR}"
-	fperms 0775 "/${ANDROID_NDK_DIR}/"{,build,platforms,prebuilt}
+	fperms 0775 "/${ANDROID_NDK_DIR}/"{,build,prebuilt}
 	fperms 0775 "/${ANDROID_NDK_DIR}/"{python-packages,sources,toolchains}
 	fperms 3775 "/${ANDROID_NDK_DIR}/out"
 
