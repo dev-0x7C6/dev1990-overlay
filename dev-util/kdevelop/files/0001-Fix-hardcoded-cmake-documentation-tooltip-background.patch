@@ -1,0 +1,33 @@
+From cf3556086b6ff0c2edf64baa4183afa5cc90663b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bart=C5=82omiej=20Burdukiewicz?=
+ <bartlomiej.burdukiewicz@gmail.com>
+Date: Thu, 13 Apr 2023 00:39:55 +0200
+Subject: [PATCH] Fix hardcoded cmake documentation tooltip background color
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This change fixed problem with white fonts on white background
+while using dark themes.
+
+Signed-off-by: Bartłomiej Burdukiewicz <bartlomiej.burdukiewicz@gmail.com>
+---
+ plugins/cmake/cmakecommandscontents.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/cmake/cmakecommandscontents.cpp b/plugins/cmake/cmakecommandscontents.cpp
+index ee904f8a75..76cf650c0c 100644
+--- a/plugins/cmake/cmakecommandscontents.cpp
++++ b/plugins/cmake/cmakecommandscontents.cpp
+@@ -98,7 +98,7 @@ QString CMakeCommandsContents::descriptionForIdentifier(const QString& id, CMake
+ 
+         const QString rst2html = QStandardPaths::findExecutable(QStringLiteral("rst2html"));
+         if (rst2html.isEmpty()) {
+-            desc = (QLatin1String("<html><body style='background:#fff'><pre><code>") + desc.toHtmlEscaped() + QLatin1String("</code></pre>")
++            desc = (QLatin1String("<html><body><pre><code>") + desc.toHtmlEscaped() + QLatin1String("</code></pre>")
+                 + i18n("<p>For better CMake documentation rendering, install rst2html.</p>")
+                 + QLatin1String("</body></html>"));
+         } else {
+-- 
+2.40.0
+
