@@ -15,8 +15,8 @@ KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 
 DEPEND="
 	dev-cpp/cli11
-	dev-libs/libfmt
-	dev-libs/spdlog
+	dev-libs/libfmt:=
+	dev-libs/spdlog:=
 	sys-libs/zlib
 "
 RDEPEND="${DEPEND}"
