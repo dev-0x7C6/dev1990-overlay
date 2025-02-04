@@ -46,7 +46,11 @@ DEPEND="
 "
 pkg_pretend() {
 	if use video_cards_amdgpu; then
-		ewarn "WARNING: AMD support in this ebuild are experimental"
+		einfo "Tested on AMD Radeon RX 7800 XT GFX1101/Navi32"
+		einfo "with ROCm 6.1.x"
+		einfo "AMDGPU_TARGETS set to \"gfx1101 gfx1030\""
+		einfo "for GPU details use amdgpu_top"
+		einfo
 		einfo "If you run into issues, especially compiling dev-libs/rocm-opencl-runtime"
 		einfo "you may try the docker image here https://github.com/ROCm/ROCm-docker"
 		einfo "and follow instructions here"

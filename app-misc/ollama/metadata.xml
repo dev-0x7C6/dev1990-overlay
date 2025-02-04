@@ -3,7 +3,7 @@
 <pkgmetadata>
 	<maintainer type="person" proxied="yes">
 		<email>bartlomiej.burdukiewicz@gmail.com</email>
-		<name>BartŁomiej Burdukiewicz</name>
+		<name>Bartłomiej Burdukiewicz</name>
 		<description>A copy from https://github.com/MrPenguin07/ebuilds/tree/master/dev-ml/ollama</description>
 	</maintainer>
 	<use>
