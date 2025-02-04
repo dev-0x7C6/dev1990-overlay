@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person" proxied="yes">
+		<email>bartlomiej.burdukiewicz@gmail.com</email>
+		<name>BartŁomiej Burdukiewicz</name>
+		<description>A copy from https://github.com/MrPenguin07/ebuilds/tree/master/dev-ml/ollama</description>
+	</maintainer>
+	<use>
+		<flag name="cuda">Enable NVIDIA CUDA support</flag>
+		<flag name="systemd">Enable systemd support</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">ollama/ollama</remote-id>
+	</upstream>
+</pkgmetadata>

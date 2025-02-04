@@ -1,0 +1,15 @@
+--- ollama-9999.ebuild.old	2024-12-17 15:02:22.274758700 +0100
++++ ollama-9999.ebuild	2024-12-17 12:09:15.921469938 +0100
+@@ -89,8 +89,10 @@
+ src_install() {
+ 	dobin dist/linux-${ARCH}/bin/ollama
+ 
+-	insinto /usr/lib
+-	doins -r dist/linux-${ARCH}/lib/ollama
++	if [[ -d "dist/linux-${ARCH}/lib/ollama" ]] ; then
++		insinto /usr/lib
++		doins -r dist/linux-${ARCH}/lib/ollama
++	fi
+ 
+ 	doinitd "${FILESDIR}"/ollama
+ }
