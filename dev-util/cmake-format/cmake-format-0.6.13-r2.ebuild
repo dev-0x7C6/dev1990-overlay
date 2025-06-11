@@ -3,15 +3,14 @@
 
 EAPI=8
 
-PYTHON_COMPAT=(python3_{7..13})
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=(python3_{10..14})
 
 inherit distutils-r1
 
 _P=${P/-/_}
 _PN=${PN/-/_}
 S="${WORKDIR}/${_P}"
-
-DISTUTILS_USE_PEP517=setuptools
 
 DESCRIPTION="Source code formatter for cmake listfiles."
 HOMEPAGE="https://github.com/cheshirekow/cmake_format.git"
