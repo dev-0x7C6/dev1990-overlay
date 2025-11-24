@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake git-r3
 
@@ -17,10 +17,8 @@ SLOT="0"
 KEYWORDS="amd64 ~arm ~arm64 x86"
 
 RDEPEND="
-	dev-qt/qtcore:5
-	dev-qt/qtgui:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtserialport:5
+	dev-qt/qtbase:6[widgets]
+	dev-qt/qtserialport:6
 "
 
 DEPEND="${RDEPEND}"
