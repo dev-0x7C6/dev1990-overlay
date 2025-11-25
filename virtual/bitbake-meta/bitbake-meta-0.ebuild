@@ -1,7 +1,7 @@
-# Copyright 2020 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="Bitbake runtime dependencies"
 HOMEPAGE="https://https://github.com/dev-0x7C6/dev1990-overlay"
