@@ -16,13 +16,26 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64 ~arm ~arm64 x86"
 
+IUSE="
+	test
+	benchmark
+"
+
 RDEPEND="
 	dev-qt/qtbase:6[widgets]
 	dev-qt/qtserialport:6
+	test? ( dev-cpp/gtest )
+	benchmark? ( dev-libs/google-benchmark )
+
 "
 
 DEPEND="${RDEPEND}"
 
 src_configure() {
+	local mycmakeargs=(
+		-DTESTS=$(usex test)
+		-DBENCHMARKS=$(usex benchmark)
+	)
+
 	cmake_src_configure
 }
